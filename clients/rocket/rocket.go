@@ -10,13 +10,21 @@ type (
 
 	Client interface {
 		// baseMethod for making a post call
-		DoPost(request interface{}, requestType string, params AdminCredentials) ([]byte, error)
+		DoPost(interface{}, string, AdminCredentials) ([]byte, error)
 
 		// user login, mostly to obtain accessToken & userId
-		Login(request UserLoginRequest) (UserLoginResponse, error)
+		Login(UserLoginRequest) (UserLoginResponse, error)
+		InfoUser(InfoUserRequest, AdminCredentials) (InfoUserResponse, error)
+		CreateUser(CreateUserRequest, AdminCredentials) (CreateUserResponse, error)
+		DeleteUser(DeleteUserRequest, AdminCredentials) (DeleteUserResponse, error)
 
 		// creates a new channel
-		CreateChannel(request ChannelCreateRequest, params AdminCredentials) (ChannelCreateResponse, error)
+		CreateChannel(ChannelCreateRequest, AdminCredentials) (ChannelCreateResponse, error)
+		DeleteChannel(DeleteChannelRequest, AdminCredentials) (DeleteChannelResponse, error)
+		InfoChannel(InfoChannelRequest, AdminCredentials) (InfoChannelResponse, error)
+
+		AddUserToChannel(AddUserToChannelRequest, AdminCredentials) (AddUserToChannelResponse, error)
+		RemoveUserFromChannel(RemoveUserFromChannelRequest, AdminCredentials) (RemoveUserFromChannelResponse, error)
 	}
 )
 

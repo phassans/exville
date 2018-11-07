@@ -5,11 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/phassans/exville/engines"
-
 	"github.com/phassans/exville/clients/rocket"
-
 	"github.com/phassans/exville/common"
+	"github.com/phassans/exville/engines"
 	"github.com/phassans/exville/route"
 )
 
@@ -30,6 +28,7 @@ func main() {
 	if err != nil {
 		logger = logger.With().Str("error", err.Error()).Logger()
 		logger.Error().Msgf("could not initialize userEngine")
+		panic("could not initialize userEngine")
 	}
 	logger.Info().Msg("init userEngine")
 
