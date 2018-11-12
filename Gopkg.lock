@@ -38,6 +38,25 @@
   version = "v3.3.3"
 
 [[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -74,7 +93,10 @@
   input-imports = [
     "github.com/NYTimes/gziphandler",
     "github.com/afex/hystrix-go/hystrix",
+    "github.com/davecgh/go-spew/spew",
     "github.com/go-chi/chi",
+    "github.com/lib/pq",
+    "github.com/pkg/errors",
     "github.com/rs/zerolog",
     "github.com/stretchr/testify/require",
   ]

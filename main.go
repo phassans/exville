@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/phassans/exville/clients/rocket"
 	"github.com/phassans/exville/common"
-	"github.com/phassans/exville/engines"
+	"github.com/phassans/exville/db"
 	"github.com/phassans/exville/route"
 )
 
@@ -19,8 +18,16 @@ func main() {
 	logger := common.GetLogger()
 	logger.Info().Msg("successfully configured logger")
 
+	// set up DB
+	_, err := db.New(db.Config{Host: "localhost", Port: "5432", User: "pshashidhara", Password: "banana123", Database: "banana"})
+	if err != nil {
+		logger.Fatal().Msgf("could not connect to db. errpr %s", err)
+	}
+
+	logger.Info().Msg("successfully connected to db")
+
 	// initialize rocket client
-	rClient := rocket.NewRocketClient(rocketURL, logger)
+	/*rClient := rocket.NewRocketClient(rocketURL, logger)
 	logger.Info().Msg("init rocket client")
 
 	// initialize user engine
@@ -33,7 +40,7 @@ func main() {
 	logger.Info().Msg("init userEngine")
 
 	// trying a end-point
-	err = userEngine.CreateOrCheckUserChannels(nil)
+	err = userEngine.CreateOrCheckUserChannels(nil)*/
 
 	// start the server
 	server = http.Server{Addr: net.JoinHostPort("", serverPort), Handler: route.APIServerHandler()}

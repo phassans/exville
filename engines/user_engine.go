@@ -1,11 +1,6 @@
 package engines
 
-import (
-	"github.com/phassans/exville/clients/rocket"
-	"github.com/rs/zerolog"
-)
-
-type (
+/*type (
 	userEngine struct {
 		rClient     rocket.Client
 		credentials rocket.AdminCredentials
@@ -39,4 +34,4 @@ func (u *userEngine) CreateOrCheckUserChannels(channels []Channel) error {
 
 	logger.Info().Msgf("response: %s", resp.Success)
 	return nil
-}
+}*/
