@@ -18,13 +18,14 @@ type (
 		CreateUser(CreateUserRequest, AdminCredentials) (CreateUserResponse, error)
 		DeleteUser(DeleteUserRequest, AdminCredentials) (DeleteUserResponse, error)
 
-		// creates a new channel
-		CreateChannel(ChannelCreateRequest, AdminCredentials) (ChannelCreateResponse, error)
-		DeleteChannel(DeleteChannelRequest, AdminCredentials) (DeleteChannelResponse, error)
-		InfoChannel(InfoChannelRequest, AdminCredentials) (InfoChannelResponse, error)
+		// creates a new Group
+		CreateGroup(GroupCreateRequest, AdminCredentials) (GroupCreateResponse, error)
+		DeleteGroup(DeleteGroupRequest, AdminCredentials) (DeleteGroupResponse, error)
+		InfoGroup(InfoGroupRequest, AdminCredentials) (InfoGroupResponse, error)
+		SetTypeGroup(SetTypeGroupRequest, AdminCredentials) (SetTypeGroupResponse, error)
 
-		AddUserToChannel(AddUserToChannelRequest, AdminCredentials) (AddUserToChannelResponse, error)
-		RemoveUserFromChannel(RemoveUserFromChannelRequest, AdminCredentials) (RemoveUserFromChannelResponse, error)
+		AddUserToGroup(AddUserToGroupRequest, AdminCredentials) (AddUserToGroupResponse, error)
+		RemoveUserFromGroup(RemoveUserFromGroupRequest, AdminCredentials) (RemoveUserFromGroupResponse, error)
 	}
 )
 

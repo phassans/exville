@@ -17,7 +17,7 @@ const (
 	testUserEmail    = "banana@gmail.com"
 	testUserPassword = "banana123"
 
-	testChannelName = "testchannel"
+	testGroupName = "testGroup"
 )
 
 var (
@@ -58,64 +58,69 @@ func TestClient_CreateDeleteInfoUser(t *testing.T) {
 	}
 }
 
-func TestClient_CreateDeleteChannel(t *testing.T) {
+func TestClient_CreateDeleteGroup(t *testing.T) {
 	newRocketChatClient(t)
 	{
-		resp, err := rClient.CreateChannel(ChannelCreateRequest{testChannelName}, adminCredentials)
+		resp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
 		require.NoError(t, err)
 		require.Equal(t, true, resp.Success)
 
-		_, err = rClient.CreateChannel(ChannelCreateRequest{testChannelName}, adminCredentials)
+		_, err = rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
 		require.Error(t, err)
 
-		dresp, err := rClient.DeleteChannel(DeleteChannelRequest{testChannelName}, adminCredentials)
+		// get Group info
+		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName}, adminCredentials)
+		require.NoError(t, err)
+		require.Equal(t, true, infoGroupResp.Success)
+
+		dresp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID}, adminCredentials)
 		require.NoError(t, err)
 		require.Equal(t, true, dresp.Success)
 	}
 }
 
-func TestClient_AddRemoveFromChannel(t *testing.T) {
+func TestClient_AddRemoveFromGroup(t *testing.T) {
 	newRocketChatClient(t)
 	{
 		// create user
-		resp, err := rClient.CreateUser(getNewUserRequest(), adminCredentials)
+		createUserResp, err := rClient.CreateUser(getNewUserRequest(), adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, resp.Success)
+		require.Equal(t, true, createUserResp.Success)
 
 		// get user info
-		iresp, err := rClient.InfoUser(InfoUserRequest{testUsername}, adminCredentials)
+		infoUserResp, err := rClient.InfoUser(InfoUserRequest{testUsername}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, iresp.Success)
+		require.Equal(t, true, infoUserResp.Success)
 
-		// create channel
-		cresp, err := rClient.CreateChannel(ChannelCreateRequest{testChannelName}, adminCredentials)
+		// create Group
+		createGroupResp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, cresp.Success)
+		require.Equal(t, true, createGroupResp.Success)
 
-		// get channel info
-		icresp, err := rClient.InfoChannel(InfoChannelRequest{testChannelName}, adminCredentials)
+		// get Group info
+		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, icresp.Success)
+		require.Equal(t, true, infoGroupResp.Success)
 
-		// add user to channel
-		auresp, err := rClient.AddUserToChannel(AddUserToChannelRequest{icresp.Channel.ID, iresp.User.ID}, adminCredentials)
+		// add user to Group
+		addUserToGroupResp, err := rClient.AddUserToGroup(AddUserToGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, auresp.Success)
+		require.Equal(t, true, addUserToGroupResp.Success)
 
-		// remove user from channel
-		remUser, err := rClient.RemoveUserFromChannel(RemoveUserFromChannelRequest{icresp.Channel.ID, iresp.User.ID}, adminCredentials)
+		// remove user from Group
+		removeUserFromGroupResp, err := rClient.RemoveUserFromGroup(RemoveUserFromGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, remUser.Success)
+		require.Equal(t, true, removeUserFromGroupResp.Success)
 
-		// delete channel
-		dresp, err := rClient.DeleteChannel(DeleteChannelRequest{testChannelName}, adminCredentials)
+		// delete Group
+		deleteGroupResp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, dresp.Success)
+		require.Equal(t, true, deleteGroupResp.Success)
 
 		// delete user
-		duresp, err := rClient.DeleteUser(DeleteUserRequest{iresp.User.ID}, adminCredentials)
+		deleteUserResp, err := rClient.DeleteUser(DeleteUserRequest{infoUserResp.User.ID}, adminCredentials)
 		require.NoError(t, err)
-		require.Equal(t, true, duresp.Success)
+		require.Equal(t, true, deleteUserResp.Success)
 	}
 }
 

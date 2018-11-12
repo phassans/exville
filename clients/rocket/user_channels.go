@@ -5,67 +5,67 @@ import (
 	"fmt"
 )
 
-func (c *client) AddUserToChannel(request AddUserToChannelRequest, params AdminCredentials) (AddUserToChannelResponse, error) {
+func (c *client) AddUserToGroup(request AddUserToGroupRequest, params AdminCredentials) (AddUserToGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, addUserToChannel, params)
+	response, err := c.DoPost(request, addUserToGroup, params)
 	if err != nil {
-		var errResp ChannelErrorResponse
+		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
 		if err != nil {
 			logger = logger.With().Str("error", err.Error()).Logger()
 			logger.Error().Msgf("unmarshal error on ErrorResponse")
-			return AddUserToChannelResponse{}, err
+			return AddUserToGroupResponse{}, err
 		}
 		logger = logger.With().
 			Bool("success", errResp.Success).
 			Str("error", errResp.Error).
 			Str("errorType", errResp.ErrorType).
 			Logger()
-		logger.Error().Msgf("AddUserToChannel returned with error")
-		return AddUserToChannelResponse{}, fmt.Errorf("AddUserToChannel returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
+		logger.Error().Msgf("AddUserToGroup returned with error")
+		return AddUserToGroupResponse{}, fmt.Errorf("AddUserToGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
 	// read response
-	var resp AddUserToChannelResponse
+	var resp AddUserToGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
 		logger = logger.With().Str("error", err.Error()).Logger()
-		logger.Error().Msgf("unmarshal error on AddUserToChannelResponse")
-		return AddUserToChannelResponse{}, err
+		logger.Error().Msgf("unmarshal error on AddUserToGroupResponse")
+		return AddUserToGroupResponse{}, err
 	}
 
 	return resp, nil
 }
 
-func (c *client) RemoveUserFromChannel(request RemoveUserFromChannelRequest, params AdminCredentials) (RemoveUserFromChannelResponse, error) {
+func (c *client) RemoveUserFromGroup(request RemoveUserFromGroupRequest, params AdminCredentials) (RemoveUserFromGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, removeUserFromChannel, params)
+	response, err := c.DoPost(request, removeUserFromGroup, params)
 	if err != nil {
-		var errResp ChannelErrorResponse
+		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
 		if err != nil {
 			logger = logger.With().Str("error", err.Error()).Logger()
 			logger.Error().Msgf("unmarshal error on ErrorResponse")
-			return RemoveUserFromChannelResponse{}, err
+			return RemoveUserFromGroupResponse{}, err
 		}
 		logger = logger.With().
 			Bool("success", errResp.Success).
 			Str("error", errResp.Error).
 			Str("errorType", errResp.ErrorType).
 			Logger()
-		logger.Error().Msgf("RemoveUserFromChannelResponse returned with error")
-		return RemoveUserFromChannelResponse{}, fmt.Errorf("RemoveUserToChannel returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
+		logger.Error().Msgf("RemoveUserFromGroupResponse returned with error")
+		return RemoveUserFromGroupResponse{}, fmt.Errorf("RemoveUserToGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
 	// read response
-	var resp RemoveUserFromChannelResponse
+	var resp RemoveUserFromGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
 		logger = logger.With().Str("error", err.Error()).Logger()
-		logger.Error().Msgf("unmarshal error on RemoveUserFromChannelResponse")
-		return RemoveUserFromChannelResponse{}, err
+		logger.Error().Msgf("unmarshal error on RemoveUserFromGroupResponse")
+		return RemoveUserFromGroupResponse{}, err
 	}
 
 	return resp, nil

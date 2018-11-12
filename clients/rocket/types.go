@@ -10,12 +10,13 @@ const (
 	deleteUser = "users.delete"
 	infoUser   = "users.info"
 
-	createChannel = "channels.create"
-	deleteChannel = "channels.delete"
-	infoChannel   = "channels.info"
+	createGroup  = "groups.create"
+	deleteGroup  = "groups.delete"
+	infoGroup    = "groups.info"
+	setTypeGroup = "groups.setType"
 
-	addUserToChannel      = "channels.invite"
-	removeUserFromChannel = "channels.kick"
+	addUserToGroup      = "groups.invite"
+	removeUserFromGroup = "groups.kick"
 )
 
 type (
@@ -157,12 +158,12 @@ type (
 		Success bool `json:"success"`
 	}
 
-	ChannelCreateRequest struct {
+	GroupCreateRequest struct {
 		Name string `json:"name"`
 	}
 
-	ChannelCreateResponse struct {
-		Channel struct {
+	GroupCreateResponse struct {
+		Group struct {
 			ID         string `json:"_id"`
 			Name       string `json:"name"`
 			Fname      string `json:"fname"`
@@ -181,22 +182,22 @@ type (
 			Default   bool        `json:"default"`
 			UpdatedAt time.Time   `json:"_updatedAt"`
 			Lm        interface{} `json:"lm"`
-		} `json:"channel"`
+		} `json:"Group"`
 		Success bool `json:"success"`
 	}
 
-	ChannelErrorResponse struct {
+	GroupErrorResponse struct {
 		Success   bool   `json:"success"`
 		Error     string `json:"error"`
 		ErrorType string `json:"errorType"`
 	}
 
-	DeleteChannelRequest struct {
-		RoomName string `json:"roomName"`
+	DeleteGroupRequest struct {
+		RoomId string `json:"roomId"`
 	}
 
-	DeleteChannelResponse struct {
-		Channel struct {
+	DeleteGroupResponse struct {
+		Group struct {
 			ID        string   `json:"_id"`
 			Name      string   `json:"name"`
 			T         string   `json:"t"`
@@ -207,16 +208,16 @@ type (
 				Username string `json:"username"`
 			} `json:"u"`
 			Ts time.Time `json:"ts"`
-		} `json:"channel"`
+		} `json:"Group"`
 		Success bool `json:"success"`
 	}
 
-	InfoChannelRequest struct {
+	InfoGroupRequest struct {
 		RoomName string `json:"roomName"`
 	}
 
-	InfoChannelResponse struct {
-		Channel struct {
+	InfoGroupResponse struct {
+		Group struct {
 			ID        string    `json:"_id"`
 			Ts        time.Time `json:"ts"`
 			T         string    `json:"t"`
@@ -226,17 +227,43 @@ type (
 			Default   bool      `json:"default"`
 			UpdatedAt time.Time `json:"_updatedAt"`
 			Lm        time.Time `json:"lm"`
-		} `json:"channel"`
+		} `json:"Group"`
 		Success bool `json:"success"`
 	}
 
-	AddUserToChannelRequest struct {
+	SetTypeGroupRequest struct {
+		RoomId string `json:"roomId"`
+		Type   string `json:"type"`
+	}
+
+	SetTypeGroupResponse struct {
+		Group struct {
+			ID   string `json:"_id"`
+			Name string `json:"name"`
+			T    string `json:"t"`
+			Msgs int    `json:"msgs"`
+			U    struct {
+				ID       string `json:"_id"`
+				Username string `json:"username"`
+			} `json:"u"`
+			Ts               time.Time     `json:"ts"`
+			Ro               bool          `json:"ro"`
+			SysMes           bool          `json:"sysMes"`
+			UpdatedAt        time.Time     `json:"_updatedAt"`
+			Usernames        []string      `json:"usernames"`
+			JoinCodeRequired bool          `json:"joinCodeRequired"`
+			Muted            []interface{} `json:"muted"`
+		} `json:"Group"`
+		Success bool `json:"success"`
+	}
+
+	AddUserToGroupRequest struct {
 		RoomId string `json:"roomId"`
 		UserId string `json:"userId"`
 	}
 
-	AddUserToChannelResponse struct {
-		Channel struct {
+	AddUserToGroupResponse struct {
+		Group struct {
 			ID        string    `json:"_id"`
 			Ts        time.Time `json:"ts"`
 			T         string    `json:"t"`
@@ -245,17 +272,17 @@ type (
 			Msgs      int       `json:"msgs"`
 			UpdatedAt time.Time `json:"_updatedAt"`
 			Lm        time.Time `json:"lm"`
-		} `json:"channel"`
+		} `json:"Group"`
 		Success bool `json:"success"`
 	}
 
-	RemoveUserFromChannelRequest struct {
+	RemoveUserFromGroupRequest struct {
 		RoomId string `json:"roomId"`
 		UserId string `json:"userId"`
 	}
 
-	RemoveUserFromChannelResponse struct {
-		Channel struct {
+	RemoveUserFromGroupResponse struct {
+		Group struct {
 			ID        string   `json:"_id"`
 			Name      string   `json:"name"`
 			T         string   `json:"t"`
@@ -269,7 +296,7 @@ type (
 			Ro        bool      `json:"ro"`
 			SysMes    bool      `json:"sysMes"`
 			UpdatedAt time.Time `json:"_updatedAt"`
-		} `json:"channel"`
+		} `json:"Group"`
 		Success bool `json:"success"`
 	}
 )

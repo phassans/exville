@@ -1,4 +1,4 @@
-package rocket
+package phantom
 
 import (
 	"bytes"
@@ -8,21 +8,17 @@ import (
 	"net/http"
 )
 
-func (c *client) DoPost(request interface{}, requestType string, params AdminCredentials) ([]byte, error) {
+func (c *client) DoPost(request interface{}) ([]byte, error) {
 	logger := c.logger
 	requestJson, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/%s/%s", c.baseURL, apiPath, requestType)
+	url := fmt.Sprintf("%s/%s", c.baseURL, apiPath)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestJson))
 	req.Header.Set("Content-Type", "application/json")
-
-	if requestType != login {
-		req.Header.Set("X-Auth-Token", params.AuthToken)
-		req.Header.Set("X-User-Id", params.UserId)
-	}
+	req.Header.Set("X-Phantombuster-Key-1", "Hg2Dk5IHZbRPCHzzIUbEsXaIYKb1cxhY")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
