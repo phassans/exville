@@ -65,6 +65,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
+  version = "v1.6.0"
+
+[[projects]]
   digest = "1:5bc8f93f977b72a7a5264725c3bab275e69de0cc3e5c0dc1ee56feb564c33f03"
   name = "github.com/rs/zerolog"
   packages = [
@@ -97,6 +105,7 @@
     "github.com/go-chi/chi",
     "github.com/lib/pq",
     "github.com/pkg/errors",
+    "github.com/rs/cors",
     "github.com/rs/zerolog",
     "github.com/stretchr/testify/require",
   ]
