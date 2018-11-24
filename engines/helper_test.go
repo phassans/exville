@@ -12,13 +12,13 @@ const (
 	testPassword    Password    = "123456"
 	testLinkedInURL LinkedInURL = "https://linkedin.com/viraagh"
 
-	testSchool       School       = "Colorado State University"
+	testSchool       SchoolName   = "Colorado State University"
 	testDegree       Degree       = "Masters"
 	testFieldOfStudy FieldOfStudy = "Computer Science"
 
-	testCompany  Company  = "Hungry Hour"
-	testLocation Location = "Sunnyvale"
-	testTitle    Title    = "Developer"
+	testCompany  CompanyName = "Hungry Hour"
+	testLocation Location    = "Sunnyvale"
+	testTitle    Title       = "Developer"
 
 	testFromYear FromYear = 2017
 	testToYear   ToYear   = 2018

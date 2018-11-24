@@ -28,7 +28,7 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("api error [%d]: %s", e.Code, e.Error())
 }
 
-// Send writes result error into response.
+// Send writes result error into response.json.
 func (e *APIError) Send(w http.ResponseWriter) error {
 	w.WriteHeader(e.Code)
 	return json.NewEncoder(w).Encode(e)

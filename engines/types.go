@@ -9,7 +9,7 @@ type (
 
 	LinkedInURL string
 
-	School string
+	SchoolName string
 
 	Degree string
 
@@ -19,7 +19,7 @@ type (
 
 	ToYear int32
 
-	Company string
+	CompanyName string
 
 	Title string
 
@@ -30,4 +30,32 @@ type (
 	SchoolID int64
 
 	CompanyID int64
+
+	Group string
+
+	User struct {
+		name FLName
+	}
+
+	Company struct {
+		companyName CompanyName
+		fromYear    FromYear
+		toYear      ToYear
+		title       Title
+		location    Location
+	}
+
+	School struct {
+		schoolName   SchoolName
+		degree       Degree
+		fieldOfStudy FieldOfStudy
+		fromYear     FromYear
+		toYear       ToYear
+	}
+
+	Profile struct {
+		user      User
+		companies []Company
+		schools   []School
+	}
 )

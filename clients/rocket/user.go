@@ -5,6 +5,29 @@ import (
 	"fmt"
 )
 
+var adminCredentials = make(map[string]AdminCredentials)
+
+const credentials = "credentials"
+
+func (c *client) InitClient(username string, password string) error {
+	resp, err := c.Login(UserLoginRequest{username, password})
+	if err != nil {
+		return err
+	}
+
+	adminCredentials[credentials] = AdminCredentials{resp.Data.AuthToken, resp.Data.UserID}
+	return nil
+}
+
+func (c *client) GetAdminCredentials() AdminCredentials {
+	if creds, ok := adminCredentials[credentials]; ok {
+		return creds
+	}
+
+	panic("rocket client is not initialized")
+	return AdminCredentials{}
+}
+
 func (c *client) Login(request UserLoginRequest) (UserLoginResponse, error) {
 	logger := c.logger
 
@@ -27,7 +50,7 @@ func (c *client) Login(request UserLoginRequest) (UserLoginResponse, error) {
 		return UserLoginResponse{}, fmt.Errorf("login returned with error: %s and code: %s", errResp.Message, errResp.Error)
 	}
 
-	// read response
+	// read response.json
 	var resp UserLoginResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -39,10 +62,10 @@ func (c *client) Login(request UserLoginRequest) (UserLoginResponse, error) {
 	return resp, nil
 }
 
-func (c *client) CreateUser(request CreateUserRequest, params AdminCredentials) (CreateUserResponse, error) {
+func (c *client) CreateUser(request CreateUserRequest) (CreateUserResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, createUser, params)
+	response, err := c.DoPost(request, createUser, c.GetAdminCredentials())
 	if err != nil {
 		var errResp ErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -62,7 +85,7 @@ func (c *client) CreateUser(request CreateUserRequest, params AdminCredentials) 
 
 	}
 
-	// read response
+	// read response.json
 	var resp CreateUserResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -74,10 +97,10 @@ func (c *client) CreateUser(request CreateUserRequest, params AdminCredentials) 
 	return resp, nil
 }
 
-func (c *client) DeleteUser(request DeleteUserRequest, params AdminCredentials) (DeleteUserResponse, error) {
+func (c *client) DeleteUser(request DeleteUserRequest) (DeleteUserResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, deleteUser, params)
+	response, err := c.DoPost(request, deleteUser, c.GetAdminCredentials())
 	if err != nil {
 		var errResp ErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -97,7 +120,7 @@ func (c *client) DeleteUser(request DeleteUserRequest, params AdminCredentials) 
 
 	}
 
-	// read response
+	// read response.json
 	var resp DeleteUserResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -109,12 +132,12 @@ func (c *client) DeleteUser(request DeleteUserRequest, params AdminCredentials) 
 	return resp, nil
 }
 
-func (c *client) InfoUser(request InfoUserRequest, params AdminCredentials) (InfoUserResponse, error) {
+func (c *client) InfoUser(request InfoUserRequest) (InfoUserResponse, error) {
 	logger := c.logger
 
 	urlParams := map[string]string{"username": request.Username}
 
-	response, err := c.DoGet(urlParams, infoUser, params)
+	response, err := c.DoGet(urlParams, infoUser, c.GetAdminCredentials())
 	if err != nil {
 		var errResp ErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -134,7 +157,7 @@ func (c *client) InfoUser(request InfoUserRequest, params AdminCredentials) (Inf
 
 	}
 
-	// read response
+	// read response.json
 	var resp InfoUserResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {

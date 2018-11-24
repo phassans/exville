@@ -37,7 +37,7 @@ func (c *client) DoGet(requestParams map[string]string, requestType string, para
 
 	if resp.StatusCode != 200 {
 		logger = logger.With().Str("body", string(body)).Logger()
-		logger.Error().Msgf("doGet non 200 response")
+		logger.Error().Msgf("doGet non 200 response.json")
 		return body, fmt.Errorf("get returned with errorCode: %d", resp.StatusCode)
 	}
 	logger.Info().Msgf("doGet success!")

@@ -1,37 +1,58 @@
 package engines
 
-/*type (
+import (
+	"github.com/phassans/exville/clients/phantom"
+	"github.com/phassans/exville/clients/rocket"
+	"github.com/rs/zerolog"
+)
+
+type (
 	userEngine struct {
-		rClient     rocket.Client
-		credentials rocket.AdminCredentials
-		logger      zerolog.Logger
+		rClient  rocket.Client
+		pClient  phantom.Client
+		dbEngine DatabaseEngine
+		logger   zerolog.Logger
 	}
 
 	UserEngine interface {
-		CreateOrCheckUserChannels(channels []Channel) error
+		SignUp(Username, Password, LinkedInURL) error
+		/*Login(Username, Password) error
+
+		GetUserProfile(Username)
+		GetProfileByURL(LinkedInURL) (Profile, error)
+
+		CreateOrVerifyGroups([]Group) error
+		AddUserToGroups(User, []Group)
+		RemoveUserFromGroups(User, []Group)*/
 	}
 )
 
-func NewUserEngine(client rocket.Client, userName string, password string, logger zerolog.Logger) (UserEngine, error) {
-	resp, err := client.Login(rocket.UserLoginRequest{userName, password})
-	if err != nil {
-		return nil, err
-	}
-
+func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine DatabaseEngine, logger zerolog.Logger) (UserEngine, error) {
 	return &userEngine{
-		client,
-		rocket.AdminCredentials{resp.Data.AuthToken, resp.Data.UserID},
+		rClient,
+		pClient,
+		dbEngine,
 		logger,
 	}, nil
 }
 
-func (u *userEngine) CreateOrCheckUserChannels(channels []Channel) error {
-	logger := u.logger
-	resp, err := u.rClient.CreateChannel(rocket.ChannelCreateRequest{"channel1"}, u.credentials)
+func (u *userEngine) SignUp(username Username, password Password, linkedInURL LinkedInURL) error {
+	// add user to db
+	_, err := u.dbEngine.AddUser("", username, password, linkedInURL)
 	if err != nil {
 		return err
 	}
 
-	logger.Info().Msgf("response: %s", resp.Success)
+	return nil
+}
+
+/*func (u *userEngine) CreateOrCheckUserGroups(groups []Group) error {
+	logger := u.logger
+	resp, err := u.rClient.CreateGroup(rocket.GroupCreateRequest{"channel1"})
+	if err != nil {
+		return err
+	}
+
+	logger.Info().Msgf("response.json: %s", resp.Success)
 	return nil
 }*/

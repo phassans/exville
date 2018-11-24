@@ -12,20 +12,24 @@ type (
 		// baseMethod for making a post call
 		DoPost(interface{}, string, AdminCredentials) ([]byte, error)
 
+		// base methods
+		InitClient(username string, password string) error
+		GetAdminCredentials() AdminCredentials
+
 		// user login, mostly to obtain accessToken & userId
 		Login(UserLoginRequest) (UserLoginResponse, error)
-		InfoUser(InfoUserRequest, AdminCredentials) (InfoUserResponse, error)
-		CreateUser(CreateUserRequest, AdminCredentials) (CreateUserResponse, error)
-		DeleteUser(DeleteUserRequest, AdminCredentials) (DeleteUserResponse, error)
+		InfoUser(InfoUserRequest) (InfoUserResponse, error)
+		CreateUser(CreateUserRequest) (CreateUserResponse, error)
+		DeleteUser(DeleteUserRequest) (DeleteUserResponse, error)
 
 		// creates a new Group
-		CreateGroup(GroupCreateRequest, AdminCredentials) (GroupCreateResponse, error)
-		DeleteGroup(DeleteGroupRequest, AdminCredentials) (DeleteGroupResponse, error)
-		InfoGroup(InfoGroupRequest, AdminCredentials) (InfoGroupResponse, error)
-		SetTypeGroup(SetTypeGroupRequest, AdminCredentials) (SetTypeGroupResponse, error)
+		CreateGroup(GroupCreateRequest) (GroupCreateResponse, error)
+		DeleteGroup(DeleteGroupRequest) (DeleteGroupResponse, error)
+		InfoGroup(InfoGroupRequest) (InfoGroupResponse, error)
+		SetTypeGroup(SetTypeGroupRequest) (SetTypeGroupResponse, error)
 
-		AddUserToGroup(AddUserToGroupRequest, AdminCredentials) (AddUserToGroupResponse, error)
-		RemoveUserFromGroup(RemoveUserFromGroupRequest, AdminCredentials) (RemoveUserFromGroupResponse, error)
+		AddUserToGroup(AddUserToGroupRequest) (AddUserToGroupResponse, error)
+		RemoveUserFromGroup(RemoveUserFromGroupRequest) (RemoveUserFromGroupResponse, error)
 	}
 )
 

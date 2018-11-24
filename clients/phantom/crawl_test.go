@@ -1,7 +1,8 @@
 package phantom
 
 import (
-	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"testing"
 
 	"github.com/phassans/exville/common"
@@ -10,6 +11,7 @@ import (
 
 const (
 	phantomURL = "https://phantombuster.com"
+	jsonFile   = "response.json"
 )
 
 var (
@@ -21,24 +23,68 @@ func newPhantomClient(t *testing.T) {
 	pClient = NewPhantomClient(phantomURL, common.GetLogger())
 }
 
+func jsonFileToResponseObject(fileName string) (Response, error) {
+	plan, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return Response{}, nil
+	}
+
+	var resp Response
+	err = json.Unmarshal(plan, &resp)
+	if err != nil {
+		return Response{}, nil
+	}
+	return resp, nil
+}
+
 func TestClient_CrawlUrl(t *testing.T) {
 	newPhantomClient(t)
 	{
-
 		resp, err := pClient.CrawlUrl("https://www.linkedin.com/in/pramod-shashidhara-21568923")
 		require.NoError(t, err)
-		for _, obj := range resp.Data.ResultObject {
-			for _, jobs := range obj.Jobs {
-				fmt.Println(jobs.CompanyName)
-				fmt.Println(jobs.Location)
-			}
+		require.NotNil(t, resp)
+	}
+}
 
-			for _, school := range obj.Schools {
-				fmt.Println(school.SchoolName)
-				fmt.Println(school.DateRange)
-				fmt.Println(school.Degree)
-				fmt.Println(school.DegreeSpec)
-			}
-		}
+func TestClient_GetUserFromResponse(t *testing.T) {
+	newPhantomClient(t)
+	{
+		resp, err := jsonFileToResponseObject(jsonFile)
+		require.NoError(t, err)
+		user := pClient.GetUserFromResponse(CrawlResponse{Data: resp})
+		require.NoError(t, err)
+		require.Equal(t, FirstName("Pramod"), user.fname)
+		require.Equal(t, LastName("Shashidhara"), user.lname)
+	}
+}
+
+func TestClient_GetSchoolsFromResponse(t *testing.T) {
+	newPhantomClient(t)
+	{
+		resp, err := jsonFileToResponseObject(jsonFile)
+		require.NoError(t, err)
+		schools, err := pClient.GetSchoolsFromResponse(CrawlResponse{Data: resp})
+		require.NoError(t, err)
+		require.Equal(t, 2, len(schools))
+	}
+}
+
+func TestClient_GetCompaniesFromResponse(t *testing.T) {
+	newPhantomClient(t)
+	{
+		resp, err := jsonFileToResponseObject(jsonFile)
+		require.NoError(t, err)
+		companies, err := pClient.GetCompaniesFromResponse(CrawlResponse{Data: resp})
+		require.NoError(t, err)
+		require.Equal(t, 12, len(companies))
+	}
+}
+
+func TestClient_GetUserProfile(t *testing.T) {
+	newPhantomClient(t)
+	{
+		profile, err := pClient.GetUserProfile("https://www.linkedin.com/in/pramod-shashidhara-21568923")
+		require.NoError(t, err)
+		require.NotNil(t, profile)
 	}
 }

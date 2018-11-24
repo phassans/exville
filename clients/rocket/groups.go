@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-func (c *client) CreateGroup(request GroupCreateRequest, params AdminCredentials) (GroupCreateResponse, error) {
+func (c *client) CreateGroup(request GroupCreateRequest) (GroupCreateResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, createGroup, params)
+	response, err := c.DoPost(request, createGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -26,7 +26,7 @@ func (c *client) CreateGroup(request GroupCreateRequest, params AdminCredentials
 		return GroupCreateResponse{}, fmt.Errorf("CreateGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
-	// read response
+	// read response.json
 	var resp GroupCreateResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -38,10 +38,10 @@ func (c *client) CreateGroup(request GroupCreateRequest, params AdminCredentials
 	return resp, nil
 }
 
-func (c *client) DeleteGroup(request DeleteGroupRequest, params AdminCredentials) (DeleteGroupResponse, error) {
+func (c *client) DeleteGroup(request DeleteGroupRequest) (DeleteGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, deleteGroup, params)
+	response, err := c.DoPost(request, deleteGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -59,7 +59,7 @@ func (c *client) DeleteGroup(request DeleteGroupRequest, params AdminCredentials
 		return DeleteGroupResponse{}, fmt.Errorf("DeleteGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
-	// read response
+	// read response.json
 	var resp DeleteGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -71,12 +71,12 @@ func (c *client) DeleteGroup(request DeleteGroupRequest, params AdminCredentials
 	return resp, nil
 }
 
-func (c *client) InfoGroup(request InfoGroupRequest, params AdminCredentials) (InfoGroupResponse, error) {
+func (c *client) InfoGroup(request InfoGroupRequest) (InfoGroupResponse, error) {
 	logger := c.logger
 
 	urlParams := map[string]string{"roomName": request.RoomName}
 
-	response, err := c.DoGet(urlParams, infoGroup, params)
+	response, err := c.DoGet(urlParams, infoGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp ErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -96,7 +96,7 @@ func (c *client) InfoGroup(request InfoGroupRequest, params AdminCredentials) (I
 
 	}
 
-	// read response
+	// read response.json
 	var resp InfoGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -108,10 +108,10 @@ func (c *client) InfoGroup(request InfoGroupRequest, params AdminCredentials) (I
 	return resp, nil
 }
 
-func (c *client) SetTypeGroup(request SetTypeGroupRequest, params AdminCredentials) (SetTypeGroupResponse, error) {
+func (c *client) SetTypeGroup(request SetTypeGroupRequest) (SetTypeGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, setTypeGroup, params)
+	response, err := c.DoPost(request, setTypeGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -129,7 +129,7 @@ func (c *client) SetTypeGroup(request SetTypeGroupRequest, params AdminCredentia
 		return SetTypeGroupResponse{}, fmt.Errorf("SetTypeGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
-	// read response
+	// read response.json
 	var resp SetTypeGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {

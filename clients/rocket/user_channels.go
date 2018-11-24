@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-func (c *client) AddUserToGroup(request AddUserToGroupRequest, params AdminCredentials) (AddUserToGroupResponse, error) {
+func (c *client) AddUserToGroup(request AddUserToGroupRequest) (AddUserToGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, addUserToGroup, params)
+	response, err := c.DoPost(request, addUserToGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -26,7 +26,7 @@ func (c *client) AddUserToGroup(request AddUserToGroupRequest, params AdminCrede
 		return AddUserToGroupResponse{}, fmt.Errorf("AddUserToGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
-	// read response
+	// read response.json
 	var resp AddUserToGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -38,10 +38,10 @@ func (c *client) AddUserToGroup(request AddUserToGroupRequest, params AdminCrede
 	return resp, nil
 }
 
-func (c *client) RemoveUserFromGroup(request RemoveUserFromGroupRequest, params AdminCredentials) (RemoveUserFromGroupResponse, error) {
+func (c *client) RemoveUserFromGroup(request RemoveUserFromGroupRequest) (RemoveUserFromGroupResponse, error) {
 	logger := c.logger
 
-	response, err := c.DoPost(request, removeUserFromGroup, params)
+	response, err := c.DoPost(request, removeUserFromGroup, c.GetAdminCredentials())
 	if err != nil {
 		var errResp GroupErrorResponse
 		err = json.Unmarshal(response, &errResp)
@@ -59,7 +59,7 @@ func (c *client) RemoveUserFromGroup(request RemoveUserFromGroupRequest, params 
 		return RemoveUserFromGroupResponse{}, fmt.Errorf("RemoveUserToGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
 	}
 
-	// read response
+	// read response.json
 	var resp RemoveUserFromGroupResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {

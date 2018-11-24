@@ -36,7 +36,7 @@ func (c *client) DoPost(request interface{}) ([]byte, error) {
 
 	if resp.StatusCode != 200 {
 		logger = logger.With().Str("body", string(body)).Logger()
-		logger.Error().Msgf("doPost non 200 response")
+		logger.Error().Msgf("doPost non 200 response.json")
 		return body, fmt.Errorf("post returned with errorCode: %d", resp.StatusCode)
 	}
 	logger.Info().Msgf("doPost success!")

@@ -19,11 +19,11 @@ type (
 		DeleteUser(username Username) error
 		UpdateUser(flName FLName, username Username, password Password, linkedInURL LinkedInURL) error
 
-		AddSchool(school School, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
-		DeleteSchool(school School, degree Degree, fieldOfStudy FieldOfStudy) error
+		AddSchool(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
+		DeleteSchool(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) error
 
-		AddCompany(company Company, location Location) (CompanyID, error)
-		DeleteCompany(company Company, location Location) error
+		AddCompany(company CompanyName, location Location) (CompanyID, error)
+		DeleteCompany(company CompanyName, location Location) error
 
 		AddUserToSchool(userID UserID, schoolID SchoolID, fromYear FromYear, toYear ToYear) error
 		RemoveUserFromSchool(userID UserID, schoolID SchoolID) error
@@ -66,7 +66,7 @@ func (d *databaseEngine) UpdateUser(flName FLName, username Username, password P
 	return nil
 }
 
-func (d *databaseEngine) AddSchool(school School, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error) {
+func (d *databaseEngine) AddSchool(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error) {
 	var schoolID SchoolID
 	err := d.sql.QueryRow("INSERT INTO school(school,degree,field_of_study,insert_time) "+
 		"VALUES($1,$2,$3,$4) returning school_id;",
@@ -80,7 +80,7 @@ func (d *databaseEngine) AddSchool(school School, degree Degree, fieldOfStudy Fi
 	return schoolID, nil
 }
 
-func (d *databaseEngine) DeleteSchool(school School, degree Degree, fieldOfStudy FieldOfStudy) error {
+func (d *databaseEngine) DeleteSchool(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) error {
 	_, err := d.sql.Exec("DELETE FROM school WHERE school=$1 AND degree = $2 AND field_of_study = $3", school, degree, fieldOfStudy)
 	if err != nil {
 		return helper.DatabaseError{DBError: err.Error()}
@@ -90,7 +90,7 @@ func (d *databaseEngine) DeleteSchool(school School, degree Degree, fieldOfStudy
 	return nil
 }
 
-func (d *databaseEngine) AddCompany(company Company, location Location) (CompanyID, error) {
+func (d *databaseEngine) AddCompany(company CompanyName, location Location) (CompanyID, error) {
 	var companyID CompanyID
 	err := d.sql.QueryRow("INSERT INTO company(company,location,insert_time) "+
 		"VALUES($1,$2,$3) returning company_id;",
@@ -104,7 +104,7 @@ func (d *databaseEngine) AddCompany(company Company, location Location) (Company
 	return companyID, nil
 }
 
-func (d *databaseEngine) DeleteCompany(company Company, location Location) error {
+func (d *databaseEngine) DeleteCompany(company CompanyName, location Location) error {
 	_, err := d.sql.Exec("DELETE FROM company WHERE company=$1 AND location=$2", company, location)
 	if err != nil {
 		return helper.DatabaseError{DBError: err.Error()}

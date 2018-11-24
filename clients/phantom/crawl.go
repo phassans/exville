@@ -28,7 +28,7 @@ func (c *client) doCrawlUrl(request CrawlRequest) (CrawlResponse, error) {
 		return CrawlResponse{}, fmt.Errorf("CrawlUrl returned with error: %s", err)
 	}
 
-	// read response
+	// read response.json
 	var resp CrawlResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {
@@ -38,4 +38,62 @@ func (c *client) doCrawlUrl(request CrawlRequest) (CrawlResponse, error) {
 	}
 
 	return resp, nil
+}
+
+func (c *client) GetUserProfile(linkedInURL string) (Profile, error) {
+	resp, err := c.CrawlUrl(string(linkedInURL))
+	if err != nil {
+		return Profile{}, err
+	}
+
+	schools, err := c.GetSchoolsFromResponse(resp)
+	if err != nil {
+		return Profile{}, err
+	}
+	companies, err := c.GetCompaniesFromResponse(resp)
+	if err != nil {
+		return Profile{}, err
+	}
+
+	user := c.GetUserFromResponse(resp)
+	return Profile{user, companies, schools}, nil
+}
+
+func (c *client) GetUserFromResponse(resp CrawlResponse) User {
+	var u User
+	for _, obj := range resp.Data.ResultObject {
+		u = User{FirstName(obj.General.FirstName), LastName(obj.General.LastName)}
+	}
+	return u
+}
+
+func (c *client) GetSchoolsFromResponse(resp CrawlResponse) ([]School, error) {
+	var schools []School
+	for _, obj := range resp.Data.ResultObject {
+		for _, school := range obj.Schools {
+			from, to, err := parseDateRangeForSchool(school.DateRange)
+			if err != nil {
+				return nil, err
+			}
+			s := School{SchoolName(school.SchoolName), Degree(school.Degree), FieldOfStudy(school.DegreeSpec), from, to}
+			schools = append(schools, s)
+		}
+	}
+	return schools, nil
+}
+
+func (c *client) GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error) {
+	var companies []Company
+	for _, obj := range resp.Data.ResultObject {
+		for _, jobs := range obj.Jobs {
+			from, to, err := parseDateRangeForCompanies(jobs.DateRange)
+			if err != nil {
+				return nil, err
+			}
+
+			c := Company{CompanyName(jobs.CompanyName), from, to, Title(jobs.JobTitle), Location(jobs.Location)}
+			companies = append(companies, c)
+		}
+	}
+	return companies, nil
 }

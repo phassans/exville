@@ -10,6 +10,11 @@ type (
 
 	Client interface {
 		CrawlUrl(string) (CrawlResponse, error)
+
+		GetUserProfile(string) (Profile, error)
+		GetSchoolsFromResponse(resp CrawlResponse) ([]School, error)
+		GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error)
+		GetUserFromResponse(resp CrawlResponse) User
 	}
 )
 

@@ -21,17 +21,16 @@ const (
 )
 
 var (
-	adminCredentials AdminCredentials
-	rClient          Client
+	rClient Client
 )
 
 func newRocketChatClient(t *testing.T) {
 	common.InitLogger()
 	rClient = NewRocketClient(rocketURL, common.GetLogger())
-	loginResp, err := rClient.Login(UserLoginRequest{testAdminUserName, testAdminPassword})
-	require.NoError(t, err)
-	require.Equal(t, "success", loginResp.Status)
-	adminCredentials = AdminCredentials{AuthToken: loginResp.Data.AuthToken, UserId: loginResp.Data.UserID}
+
+	if err := rClient.InitClient(testAdminUserName, testAdminPassword); err != nil {
+		panic("cannot initialize test rocket client")
+	}
 }
 
 func TestClient_Login(t *testing.T) {
@@ -41,18 +40,18 @@ func TestClient_Login(t *testing.T) {
 func TestClient_CreateDeleteInfoUser(t *testing.T) {
 	newRocketChatClient(t)
 	{
-		resp, err := rClient.CreateUser(getNewUserRequest(), adminCredentials)
+		resp, err := rClient.CreateUser(getNewUserRequest())
 		require.NoError(t, err)
 		require.Equal(t, true, resp.Success)
 
-		_, err = rClient.CreateUser(getNewUserRequest(), adminCredentials)
+		_, err = rClient.CreateUser(getNewUserRequest())
 		require.Error(t, err)
 
-		iresp, err := rClient.InfoUser(InfoUserRequest{testUsername}, adminCredentials)
+		iresp, err := rClient.InfoUser(InfoUserRequest{testUsername})
 		require.NoError(t, err)
 		require.Equal(t, true, iresp.Success)
 
-		dresp, err := rClient.DeleteUser(DeleteUserRequest{iresp.User.ID}, adminCredentials)
+		dresp, err := rClient.DeleteUser(DeleteUserRequest{iresp.User.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, dresp.Success)
 	}
@@ -61,19 +60,19 @@ func TestClient_CreateDeleteInfoUser(t *testing.T) {
 func TestClient_CreateDeleteGroup(t *testing.T) {
 	newRocketChatClient(t)
 	{
-		resp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
+		resp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName})
 		require.NoError(t, err)
 		require.Equal(t, true, resp.Success)
 
-		_, err = rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
+		_, err = rClient.CreateGroup(GroupCreateRequest{testGroupName})
 		require.Error(t, err)
 
 		// get Group info
-		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName}, adminCredentials)
+		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName})
 		require.NoError(t, err)
 		require.Equal(t, true, infoGroupResp.Success)
 
-		dresp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID}, adminCredentials)
+		dresp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, dresp.Success)
 	}
@@ -83,42 +82,42 @@ func TestClient_AddRemoveFromGroup(t *testing.T) {
 	newRocketChatClient(t)
 	{
 		// create user
-		createUserResp, err := rClient.CreateUser(getNewUserRequest(), adminCredentials)
+		createUserResp, err := rClient.CreateUser(getNewUserRequest())
 		require.NoError(t, err)
 		require.Equal(t, true, createUserResp.Success)
 
 		// get user info
-		infoUserResp, err := rClient.InfoUser(InfoUserRequest{testUsername}, adminCredentials)
+		infoUserResp, err := rClient.InfoUser(InfoUserRequest{testUsername})
 		require.NoError(t, err)
 		require.Equal(t, true, infoUserResp.Success)
 
 		// create Group
-		createGroupResp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName}, adminCredentials)
+		createGroupResp, err := rClient.CreateGroup(GroupCreateRequest{testGroupName})
 		require.NoError(t, err)
 		require.Equal(t, true, createGroupResp.Success)
 
 		// get Group info
-		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName}, adminCredentials)
+		infoGroupResp, err := rClient.InfoGroup(InfoGroupRequest{testGroupName})
 		require.NoError(t, err)
 		require.Equal(t, true, infoGroupResp.Success)
 
 		// add user to Group
-		addUserToGroupResp, err := rClient.AddUserToGroup(AddUserToGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID}, adminCredentials)
+		addUserToGroupResp, err := rClient.AddUserToGroup(AddUserToGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, addUserToGroupResp.Success)
 
 		// remove user from Group
-		removeUserFromGroupResp, err := rClient.RemoveUserFromGroup(RemoveUserFromGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID}, adminCredentials)
+		removeUserFromGroupResp, err := rClient.RemoveUserFromGroup(RemoveUserFromGroupRequest{infoGroupResp.Group.ID, infoUserResp.User.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, removeUserFromGroupResp.Success)
 
 		// delete Group
-		deleteGroupResp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID}, adminCredentials)
+		deleteGroupResp, err := rClient.DeleteGroup(DeleteGroupRequest{infoGroupResp.Group.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, deleteGroupResp.Success)
 
 		// delete user
-		deleteUserResp, err := rClient.DeleteUser(DeleteUserRequest{infoUserResp.User.ID}, adminCredentials)
+		deleteUserResp, err := rClient.DeleteUser(DeleteUserRequest{infoUserResp.User.ID})
 		require.NoError(t, err)
 		require.Equal(t, true, deleteUserResp.Success)
 	}
