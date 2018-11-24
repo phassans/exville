@@ -12,6 +12,8 @@ type (
 		CrawlUrl(string) (CrawlResponse, error)
 
 		GetUserProfile(string) (Profile, error)
+		SaveUserProfile(resp CrawlResponse) (string, error)
+
 		GetSchoolsFromResponse(resp CrawlResponse) ([]School, error)
 		GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error)
 		GetUserFromResponse(resp CrawlResponse) User

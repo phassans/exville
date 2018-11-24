@@ -3,6 +3,9 @@ package phantom
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 func (c *client) CrawlUrl(linkedInURL string) (CrawlResponse, error) {
@@ -46,6 +49,11 @@ func (c *client) GetUserProfile(linkedInURL string) (Profile, error) {
 		return Profile{}, err
 	}
 
+	fileName, err := c.SaveUserProfile(resp)
+	if err != nil {
+		return Profile{}, err
+	}
+
 	schools, err := c.GetSchoolsFromResponse(resp)
 	if err != nil {
 		return Profile{}, err
@@ -56,7 +64,7 @@ func (c *client) GetUserProfile(linkedInURL string) (Profile, error) {
 	}
 
 	user := c.GetUserFromResponse(resp)
-	return Profile{user, companies, schools}, nil
+	return Profile{user, companies, schools, fileName}, nil
 }
 
 func (c *client) GetUserFromResponse(resp CrawlResponse) User {
@@ -96,4 +104,29 @@ func (c *client) GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error)
 		}
 	}
 	return companies, nil
+}
+
+func (c *client) SaveUserProfile(resp CrawlResponse) (FileName, error) {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+
+	// get user name
+	user := c.GetUserFromResponse(resp)
+	fileName := fmt.Sprintf("%s.%s.%s.json", user.fname, user.lname, u)
+
+	// marshall the resp
+	b, err := json.Marshal(resp)
+	if err != nil {
+		return "", err
+	}
+
+	// write to file
+	err = ioutil.WriteFile(userDataPath+fileName, b, 0644)
+	if err != nil {
+		return "", err
+	}
+
+	return FileName(fileName), nil
 }

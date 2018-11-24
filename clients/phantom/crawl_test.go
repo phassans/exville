@@ -88,3 +88,14 @@ func TestClient_GetUserProfile(t *testing.T) {
 		require.NotNil(t, profile)
 	}
 }
+
+func TestClient_SaveResponse(t *testing.T) {
+	newPhantomClient(t)
+	{
+		resp, err := jsonFileToResponseObject(jsonFile)
+		require.NoError(t, err)
+		filename, err := pClient.SaveUserProfile(CrawlResponse{Data: resp})
+		require.NoError(t, err)
+		require.NotNil(t, filename)
+	}
+}

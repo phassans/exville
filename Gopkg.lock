@@ -49,6 +49,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:0e1e5f960c58fdc677212fcc70e55042a0084d367623e51afbdb568963832f5d"
+  name = "github.com/nu7hatch/gouuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
+
+[[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -104,6 +112,7 @@
     "github.com/davecgh/go-spew/spew",
     "github.com/go-chi/chi",
     "github.com/lib/pq",
+    "github.com/nu7hatch/gouuid",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/rs/zerolog",
