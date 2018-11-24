@@ -101,41 +101,35 @@ type (
 
 	Location string
 
-	UserID int64
-
-	SchoolID int64
-
-	CompanyID int64
-
 	Group string
 
 	FileName string
 
 	User struct {
-		fname FirstName
-		lname LastName
+		Firstname FirstName
+		LastName  LastName
 	}
 
 	Company struct {
-		companyName CompanyName
-		fromYear    FromYear
-		toYear      ToYear
-		title       Title
-		location    Location
+		CompanyName CompanyName
+		FromYear    FromYear
+		ToYear      ToYear
+		Title       Title
+		Location    Location
 	}
 
 	School struct {
-		schoolName   SchoolName
-		degree       Degree
-		fieldOfStudy FieldOfStudy
-		fromYear     FromYear
-		toYear       ToYear
+		SchoolName   SchoolName
+		Degree       Degree
+		FieldOfStudy FieldOfStudy
+		FromYear     FromYear
+		ToYear       ToYear
 	}
 
 	Profile struct {
-		user      User
-		companies []Company
-		schools   []School
-		fileName  FileName
+		User      User
+		Companies []Company
+		Schools   []School
+		FileName  FileName
 	}
 )

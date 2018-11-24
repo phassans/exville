@@ -38,9 +38,12 @@ func newDataBaseEngine(t *testing.T) {
 func TestDatabaseEngine_AddDeleteUser(t *testing.T) {
 	newDataBaseEngine(t)
 	{
-		userID, err := engine.AddUser(testUser, testUserName, testPassword, testLinkedInURL)
+		userID, err := engine.AddUser(testUserName, testPassword, testLinkedInURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, userID)
+
+		err = engine.UpdateUserWithNameAndReference(testUserFirstName, testUserLastName, testFileName, userID)
+		require.NoError(t, err)
 
 		err = engine.DeleteUser(testUserName)
 		require.NoError(t, err)
@@ -50,7 +53,11 @@ func TestDatabaseEngine_AddDeleteUser(t *testing.T) {
 func TestDatabaseEngine_AddDeleteSchool(t *testing.T) {
 	newDataBaseEngine(t)
 	{
-		schoolID, err := engine.AddSchool(testSchool, testDegree, testFieldOfStudy)
+		schoolID, err := engine.AddSchoolIfNotPresent(testSchool, testDegree, testFieldOfStudy)
+		require.NoError(t, err)
+		require.NotEmpty(t, schoolID)
+
+		schoolID, err = engine.AddSchoolIfNotPresent(testSchool, testDegree, testFieldOfStudy)
 		require.NoError(t, err)
 		require.NotEmpty(t, schoolID)
 
@@ -62,7 +69,7 @@ func TestDatabaseEngine_AddDeleteSchool(t *testing.T) {
 func TestDatabaseEngine_AddDeleteCompany(t *testing.T) {
 	newDataBaseEngine(t)
 	{
-		companyID, err := engine.AddCompany(testCompany, testLocation)
+		companyID, err := engine.AddCompanyIfNotPresent(testCompany, testLocation)
 		require.NoError(t, err)
 		require.NotEmpty(t, companyID)
 
@@ -74,11 +81,11 @@ func TestDatabaseEngine_AddDeleteCompany(t *testing.T) {
 func TestDatabaseEngine_AddRemoveUserSchool(t *testing.T) {
 	newDataBaseEngine(t)
 	{
-		userID, err := engine.AddUser(testUser, testUserName, testPassword, testLinkedInURL)
+		userID, err := engine.AddUser(testUserName, testPassword, testLinkedInURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, userID)
 
-		schoolID, err := engine.AddSchool(testSchool, testDegree, testFieldOfStudy)
+		schoolID, err := engine.AddSchoolIfNotPresent(testSchool, testDegree, testFieldOfStudy)
 		require.NoError(t, err)
 		require.NotEmpty(t, schoolID)
 
@@ -99,11 +106,11 @@ func TestDatabaseEngine_AddRemoveUserSchool(t *testing.T) {
 func TestDatabaseEngine_AddRemoveUserCompany(t *testing.T) {
 	newDataBaseEngine(t)
 	{
-		userID, err := engine.AddUser(testUser, testUserName, testPassword, testLinkedInURL)
+		userID, err := engine.AddUser(testUserName, testPassword, testLinkedInURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, userID)
 
-		companyID, err := engine.AddCompany(testCompany, testLocation)
+		companyID, err := engine.AddCompanyIfNotPresent(testCompany, testLocation)
 		require.NoError(t, err)
 		require.NotEmpty(t, companyID)
 

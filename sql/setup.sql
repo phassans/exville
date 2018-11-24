@@ -1,10 +1,12 @@
 CREATE TABLE IF NOT EXISTS viraagh_user
 (
   user_id       SERIAL,
-  fl_name       TEXT      NOT NULL,
+  first_name    TEXT      NULL,
+  last_name     TEXT      NULL,
   username      TEXT      NOT NULL,
   password      TEXT      NOT NULL,
-  linkedIn_URL  TEXT      NOT NULL,
+  linkedIn_url  TEXT      NOT NULL,
+  filename      TEXT      NULL,
   insert_time   TIMESTAMP NOT NULL,
   PRIMARY KEY   (user_id)
 );
@@ -12,7 +14,7 @@ CREATE TABLE IF NOT EXISTS viraagh_user
 CREATE TABLE IF NOT EXISTS school
 (
   school_id       SERIAL,
-  school          TEXT      NOT NULL,
+  school_name     TEXT      NOT NULL,
   degree          TEXT      NULL,
   field_of_study  TEXT      NULL,
   insert_time     TIMESTAMP NOT NULL,
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS school
 CREATE TABLE IF NOT EXISTS company
 (
   company_id    SERIAL,
-  company       TEXT      NOT NULL,
+  company_name  TEXT      NOT NULL,
   location      TEXT      NULL,
   insert_time   TIMESTAMP NOT NULL,
   PRIMARY KEY   (company_id)

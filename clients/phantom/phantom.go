@@ -12,7 +12,7 @@ type (
 		CrawlUrl(string) (CrawlResponse, error)
 
 		GetUserProfile(string) (Profile, error)
-		SaveUserProfile(resp CrawlResponse) (string, error)
+		SaveUserProfile(resp CrawlResponse) (FileName, error)
 
 		GetSchoolsFromResponse(resp CrawlResponse) ([]School, error)
 		GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error)
