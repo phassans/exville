@@ -114,7 +114,7 @@ func (c *client) SaveUserProfile(resp CrawlResponse) (FileName, error) {
 
 	// get user name
 	user := c.GetUserFromResponse(resp)
-	fileName := fmt.Sprintf("%s.%s.%s.json", user.fname, user.lname, u)
+	fileName := fmt.Sprintf("%s.%s.%s.json", user.Firstname, user.LastName, u)
 
 	// marshall the resp
 	b, err := json.Marshal(resp)

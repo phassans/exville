@@ -53,8 +53,8 @@ func TestClient_GetUserFromResponse(t *testing.T) {
 		require.NoError(t, err)
 		user := pClient.GetUserFromResponse(CrawlResponse{Data: resp})
 		require.NoError(t, err)
-		require.Equal(t, FirstName("Pramod"), user.fname)
-		require.Equal(t, LastName("Shashidhara"), user.lname)
+		require.Equal(t, FirstName("Pramod"), user.Firstname)
+		require.Equal(t, LastName("Shashidhara"), user.LastName)
 	}
 }
 

@@ -41,15 +41,9 @@ func (rtr *router) newPostHandler(endpoint postEndpoint) http.HandlerFunc {
 			Int("status", GetErrorStatus(err)).Logger()
 		if err != nil {
 			logger.Error().Msgf(err.Error())
-
-			// TBD: HACK, will fix later
-			if endpoint.GetPath() == "/business/add" {
-				err = json.NewEncoder(w).Encode(result)
-			}
 			return
 		}
 		logger.Info().Msgf("POST success")
-
 		err = json.NewEncoder(w).Encode(result)
 	}
 }

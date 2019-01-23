@@ -1,4 +1,4 @@
-package engines
+package database
 
 import (
 	"testing"
@@ -115,6 +115,48 @@ func TestDatabaseEngine_AddRemoveUserCompany(t *testing.T) {
 		require.NotEmpty(t, companyID)
 
 		err = engine.AddUserToCompany(userID, companyID, testTitle, testFromYear, testToYear)
+		require.NoError(t, err)
+
+		err = engine.RemoveUserFromCompany(userID, companyID)
+		require.NoError(t, err)
+
+		err = engine.DeleteCompany(testCompany, testLocation)
+		require.NoError(t, err)
+
+		err = engine.DeleteUser(testUserName)
+		require.NoError(t, err)
+	}
+}
+
+func TestDatabaseEngine_AddGroupsToUser(t *testing.T) {
+	newDataBaseEngine(t)
+	{
+		userID, err := engine.AddUser(testUserName, testPassword, testLinkedInURL)
+		require.NoError(t, err)
+		require.NotEmpty(t, userID)
+
+		companyID, err := engine.AddCompanyIfNotPresent(testCompany, testLocation)
+		require.NoError(t, err)
+		require.NotEmpty(t, companyID)
+
+		err = engine.AddUserToCompany(userID, companyID, testTitle, testFromYear, testToYear)
+		require.NoError(t, err)
+
+		schoolID, err := engine.AddSchoolIfNotPresent(testSchool, testDegree, testFieldOfStudy)
+		require.NoError(t, err)
+		require.NotEmpty(t, schoolID)
+
+		err = engine.AddUserToSchool(userID, schoolID, testFromYear, testToYear)
+		require.NoError(t, err)
+
+		groups, err := engine.AddGroupsToUser(userID)
+		require.NoError(t, err)
+		require.Equal(t, 4, len(groups))
+
+		err = engine.RemoveUserFromSchool(userID, schoolID)
+		require.NoError(t, err)
+
+		err = engine.DeleteSchool(testSchool, testDegree, testFieldOfStudy)
 		require.NoError(t, err)
 
 		err = engine.RemoveUserFromCompany(userID, companyID)

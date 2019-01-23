@@ -13,7 +13,7 @@ const (
 	testUserLastName  phantom.LastName    = "HS"
 	testUserName      phantom.Username    = "Viraagh"
 	testPassword      phantom.Password    = "123456"
-	testLinkedInURL   phantom.LinkedInURL = "https://linkedin.com/viraagh"
+	testLinkedInURL   phantom.LinkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
 
 	testSchool       phantom.SchoolName   = "Colorado State University"
 	testDegree       phantom.Degree       = "Masters"

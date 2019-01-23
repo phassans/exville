@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS user_to_school
   from_year     INTEGER   NULL,
   to_year       INTEGER   NULL,
   insert_time   TIMESTAMP NOT NULL,
-  PRIMARY KEY   (user_id,school_id)
+  PRIMARY KEY   (user_id,school_id,from_year,to_year)
 );
 
 CREATE TABLE IF NOT EXISTS user_to_company
@@ -48,5 +48,13 @@ CREATE TABLE IF NOT EXISTS user_to_company
   from_year     INTEGER   NULL,
   to_year       INTEGER   NULL,
   insert_time   TIMESTAMP NOT NULL,
-  PRIMARY KEY   (user_id,company_id)
+  PRIMARY KEY   (user_id,company_id,from_year,to_year)
+);
+
+CREATE TABLE IF NOT EXISTS user_to_groups
+(
+  user_id       NUMERIC   NOT NULL,
+  group_name    TEXT      NOT NULL,
+  status        BOOLEAN   NOT NULL,
+  PRIMARY KEY   (user_id,group_name)
 );

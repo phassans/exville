@@ -3,19 +3,21 @@ package route
 import (
 	"fmt"
 	"net/http"
-	"net/http/pprof"
+
+	"github.com/phassans/exville/engines"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/go-chi/chi"
+	"github.com/phassans/exville/api"
 )
 
 // APIServerHandler returns a Gzip handler
-func APIServerHandler() http.Handler {
-	r := newAPIRouter()
+func APIServerHandler(engines engines.Engine) http.Handler {
+	r := newAPIRouter(engines)
 	return gziphandler.GzipHandler(r)
 }
 
-func newAPIRouter() chi.Router {
+func newAPIRouter(engines engines.Engine) chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
@@ -25,12 +27,7 @@ func newAPIRouter() chi.Router {
 		fmt.Fprintln(w, "OK")
 	})
 
-	// Register pprof handlers
-	r.HandleFunc("/debug/pprof/", pprof.Index)
-	r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	r.Mount("/", controller.NewRESTRouter(engines))
 
 	return r
 }

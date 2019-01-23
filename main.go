@@ -5,8 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/phassans/exville/engines/database"
+
 	"github.com/phassans/exville/common"
 	"github.com/phassans/exville/db"
+	"github.com/phassans/exville/engines"
 	"github.com/phassans/exville/route"
 )
 
@@ -19,7 +22,7 @@ func main() {
 	logger.Info().Msg("successfully configured logger")
 
 	// set up DB
-	_, err := db.New(db.Config{Host: "localhost", Port: "5432", User: "pshashidhara", Password: "banana123", Database: "banana"})
+	roachDb, err := db.New(db.Config{Host: "localhost", Port: "5432", User: "pshashidhara", Password: "banana123", Database: "banana"})
 	if err != nil {
 		logger.Fatal().Msgf("could not connect to db. errpr %s", err)
 	}
@@ -42,8 +45,11 @@ func main() {
 	// trying a end-point
 	err = userEngine.CreateOrCheckUserChannels(nil)*/
 
+	dbEngine := database.NewDatabaseEngine(roachDb.Db, logger)
+	engines := engines.NewGenericEngine(dbEngine)
+
 	// start the server
-	server = http.Server{Addr: net.JoinHostPort("", serverPort), Handler: route.APIServerHandler()}
+	server = http.Server{Addr: net.JoinHostPort("", serverPort), Handler: route.APIServerHandler(engines)}
 	go func() { serverErrChannel <- server.ListenAndServe() }()
 
 	// log server start time

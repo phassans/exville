@@ -4,7 +4,7 @@ const (
 	apiPath       = "api/v1/agent/34811/launch"
 	sessionCookie = "AQEDAQTnvfEARChEAAABZp_vlUwAAAFm7EJq4lYArACGC4wA3Cn6MkC7S7k-62JzarzuMhrN6Ln_IUxBtSNYbJ1pxBJsbZlryzsdYJwxlvIhBi9h4WGpWsd8mQlUXCCakXYdHy-ZkNgcsNjeCuIVO2Sq"
 	output        = "result-object-with-output"
-	userDataPath  = "../../user_data/"
+	userDataPath  = "/Users/pramodhs/goworkspace/src/github.com/phassans/exville/user_data/"
 )
 
 type (
