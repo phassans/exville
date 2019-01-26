@@ -1,9 +1,7 @@
-package user
+package engines
 
 import (
 	"fmt"
-
-	"github.com/phassans/exville/engines/database"
 
 	"github.com/phassans/exville/clients/phantom"
 	"github.com/phassans/exville/clients/rocket"
@@ -14,7 +12,7 @@ type (
 	userEngine struct {
 		rClient  rocket.Client
 		pClient  phantom.Client
-		dbEngine database.DatabaseEngine
+		dbEngine DatabaseEngine
 		logger   zerolog.Logger
 	}
 
@@ -31,7 +29,7 @@ type (
 	}
 )
 
-func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine database.DatabaseEngine, logger zerolog.Logger) (UserEngine, error) {
+func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine DatabaseEngine, logger zerolog.Logger) (UserEngine, error) {
 	return &userEngine{
 		rClient,
 		pClient,
@@ -42,7 +40,7 @@ func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine datab
 
 func (u *userEngine) SignUp(username phantom.Username, password phantom.Password, linkedInURL phantom.LinkedInURL) error {
 	// add user to db
-	var userId database.UserID
+	var userId UserID
 	var err error
 
 	// add user
@@ -58,7 +56,7 @@ func (u *userEngine) SignUp(username phantom.Username, password phantom.Password
 	return nil
 }
 
-func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, userId database.UserID) error {
+func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, userId UserID) error {
 	// get userProfile
 	profile, err := u.pClient.GetUserProfile(string(linkedInURL))
 	if err != nil {
@@ -88,7 +86,7 @@ func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, u
 	return nil
 }
 
-func (u *userEngine) addUserToSchools(profile phantom.Profile, userID database.UserID) error {
+func (u *userEngine) addUserToSchools(profile phantom.Profile, userID UserID) error {
 	for _, school := range profile.Schools {
 		schoolID, err := u.dbEngine.AddSchoolIfNotPresent(school.SchoolName, school.Degree, school.FieldOfStudy)
 		if err != nil {
@@ -103,7 +101,7 @@ func (u *userEngine) addUserToSchools(profile phantom.Profile, userID database.U
 	return nil
 }
 
-func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID database.UserID) error {
+func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID UserID) error {
 	for _, company := range profile.Companies {
 		companyID, err := u.dbEngine.AddCompanyIfNotPresent(company.CompanyName, company.Location)
 		if err != nil {

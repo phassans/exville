@@ -1,15 +1,13 @@
 package engines
 
-import "github.com/phassans/exville/engines/database"
-
 type Engine interface {
-	database.DatabaseEngine
+	UserEngine
 }
 
 type genericEngine struct {
-	database.DatabaseEngine
+	UserEngine
 }
 
-func NewGenericEngine(dbEngine database.DatabaseEngine) Engine {
-	return &genericEngine{dbEngine}
+func NewGenericEngine(userEngine UserEngine) Engine {
+	return &genericEngine{userEngine}
 }

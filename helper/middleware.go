@@ -7,7 +7,7 @@ import (
 	"github.com/phassans/exville/common"
 )
 
-// SetJSONContentResponse sets content type of response.json to be JSON.
+// SetJSONContentResponse sets content type of response to be JSON.
 func SetJSONContentResponse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
