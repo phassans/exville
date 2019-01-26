@@ -1,7 +1,5 @@
 package engines
 
-import "github.com/phassans/exville/clients/phantom"
-
 const (
 	testDatabaseHost     = "localhost"
 	testDataPort         = "5432"
@@ -9,22 +7,22 @@ const (
 	testDatabaseUsername = "pshashidhara"
 	testDatabasePassword = "banana123"
 
-	testUserFirstName phantom.FirstName   = "Pramod"
-	testUserLastName  phantom.LastName    = "HS"
-	testUserName      phantom.Username    = "Viraagh"
-	testPassword      phantom.Password    = "123456"
-	testLinkedInURL   phantom.LinkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
+	testUserFirstName FirstName   = "Pramod"
+	testUserLastName  LastName    = "HS"
+	testUserName      Username    = "Viraagh"
+	testPassword      Password    = "123456"
+	testLinkedInURL   LinkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
 
-	testSchool       phantom.SchoolName   = "Colorado State University"
-	testDegree       phantom.Degree       = "Masters"
-	testFieldOfStudy phantom.FieldOfStudy = "Computer Science"
+	testSchool       SchoolName   = "Colorado State University"
+	testDegree       Degree       = "Masters"
+	testFieldOfStudy FieldOfStudy = "Computer Science"
 
-	testCompany  phantom.CompanyName = "Hungry Hour"
-	testLocation phantom.Location    = "Sunnyvale"
-	testTitle    phantom.Title       = "Developer"
+	testCompany  CompanyName = "Hungry Hour"
+	testLocation Location    = "Sunnyvale"
+	testTitle    Title       = "Developer"
 
-	testFromYear phantom.FromYear = 2017
-	testToYear   phantom.ToYear   = 2018
+	testFromYear FromYear = 2017
+	testToYear   ToYear   = 2018
 
-	testFileName phantom.FileName = "pramod.shashidhara.json"
+	testFileName FileName = "pramod.shashidhara.json"
 )

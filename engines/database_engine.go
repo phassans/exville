@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/phassans/exville/clients/phantom"
 	"github.com/phassans/exville/helper"
 	"github.com/rs/zerolog"
 )
@@ -19,30 +18,31 @@ type (
 
 	DatabaseEngine interface {
 		// User Methods
-		AddUser(username phantom.Username, password phantom.Password, linkedInURL phantom.LinkedInURL) (UserID, error)
-		DeleteUser(username phantom.Username) error
-		UpdateUserWithNameAndReference(name phantom.FirstName, lastName phantom.LastName, fileName phantom.FileName, id UserID) error
+		AddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error)
+		DeleteUser(username Username) error
+		UpdateUserWithNameAndReference(name FirstName, lastName LastName, fileName FileName, id UserID) error
+		GetUserByUserNameAndPassword(Username, Password) (User, error)
 
 		// School Methods
-		AddSchoolIfNotPresent(school phantom.SchoolName, degree phantom.Degree, fieldOfStudy phantom.FieldOfStudy) (SchoolID, error)
-		DeleteSchool(school phantom.SchoolName, degree phantom.Degree, fieldOfStudy phantom.FieldOfStudy) error
-		GetSchoolID(phantom.SchoolName, phantom.Degree, phantom.FieldOfStudy) (SchoolID, error)
+		AddSchoolIfNotPresent(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
+		DeleteSchool(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) error
+		GetSchoolID(SchoolName, Degree, FieldOfStudy) (SchoolID, error)
 
 		// Company Methods
-		AddCompanyIfNotPresent(company phantom.CompanyName, location phantom.Location) (CompanyID, error)
-		DeleteCompany(company phantom.CompanyName, location phantom.Location) error
-		GetCompanyID(phantom.CompanyName, phantom.Location) (CompanyID, error)
+		AddCompanyIfNotPresent(company CompanyName, location Location) (CompanyID, error)
+		DeleteCompany(company CompanyName, location Location) error
+		GetCompanyID(CompanyName, Location) (CompanyID, error)
 
 		// UserToSchool
-		AddUserToSchool(userID UserID, schoolID SchoolID, fromYear phantom.FromYear, toYear phantom.ToYear) error
+		AddUserToSchool(userID UserID, schoolID SchoolID, fromYear FromYear, toYear ToYear) error
 		RemoveUserFromSchool(userID UserID, schoolID SchoolID) error
 
 		// UserToCompany
-		AddUserToCompany(userID UserID, companyID CompanyID, title phantom.Title, fromYear phantom.FromYear, toYear phantom.ToYear) error
+		AddUserToCompany(userID UserID, companyID CompanyID, title Title, fromYear FromYear, toYear ToYear) error
 		RemoveUserFromCompany(userID UserID, companyID CompanyID) error
 
-		AddGroupsToUser(userID UserID) ([]phantom.Group, error)
-		GetGroupsByUserID(userID UserID) ([]phantom.Group, error)
+		AddGroupsToUser(userID UserID) ([]Group, error)
+		GetGroupsByUserID(userID UserID) ([]Group, error)
 	}
 )
 
@@ -51,7 +51,7 @@ func NewDatabaseEngine(psql *sql.DB, logger zerolog.Logger) DatabaseEngine {
 	return &databaseEngine{psql, logger}
 }
 
-func (d *databaseEngine) AddUser(username phantom.Username, password phantom.Password, linkedInURL phantom.LinkedInURL) (UserID, error) {
+func (d *databaseEngine) AddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error) {
 	var userID UserID
 	err := d.sql.QueryRow("INSERT INTO viraagh_user(username,password,linkedIn_URL,insert_time) "+
 		"VALUES($1,$2,$3,$4) returning user_id;", username, password, linkedInURL, time.Now()).Scan(&userID)
@@ -64,7 +64,7 @@ func (d *databaseEngine) AddUser(username phantom.Username, password phantom.Pas
 	return userID, nil
 }
 
-func (d *databaseEngine) DeleteUser(username phantom.Username) error {
+func (d *databaseEngine) DeleteUser(username Username) error {
 	_, err := d.sql.Exec("DELETE FROM viraagh_user WHERE username=$1", username)
 	if err != nil {
 		return helper.DatabaseError{DBError: err.Error()}
@@ -74,7 +74,7 @@ func (d *databaseEngine) DeleteUser(username phantom.Username) error {
 	return nil
 }
 
-func (d *databaseEngine) UpdateUserWithNameAndReference(firstName phantom.FirstName, lastName phantom.LastName, fileName phantom.FileName, id UserID) error {
+func (d *databaseEngine) UpdateUserWithNameAndReference(firstName FirstName, lastName LastName, fileName FileName, id UserID) error {
 	updateUserWithNameAndReferenceSQL := `UPDATE viraagh_user SET first_name = $1, last_name = $2, filename = $3 WHERE user_id=$4;`
 
 	_, err := d.sql.Exec(updateUserWithNameAndReferenceSQL, firstName, lastName, fileName, id)
@@ -84,7 +84,21 @@ func (d *databaseEngine) UpdateUserWithNameAndReference(firstName phantom.FirstN
 	return nil
 }
 
-func (d *databaseEngine) AddSchoolIfNotPresent(schoolName phantom.SchoolName, degree phantom.Degree, fieldOfStudy phantom.FieldOfStudy) (SchoolID, error) {
+func (d *databaseEngine) GetUserByUserNameAndPassword(userName Username, password Password) (User, error) {
+	var user User
+	rows := d.sql.QueryRow("SELECT user_id, first_name, last_name, linkedin_url, filename WHERE username = $1 AND password = $2", userName, password)
+	err := rows.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.LinkedInURL, &user.FileName)
+
+	if err == sql.ErrNoRows {
+		return User{}, err
+	} else if err != nil {
+		return User{}, helper.DatabaseError{DBError: err.Error()}
+	}
+
+	return user, nil
+}
+
+func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error) {
 	var schoolID SchoolID
 	var err error
 
@@ -112,7 +126,7 @@ func (d *databaseEngine) AddSchoolIfNotPresent(schoolName phantom.SchoolName, de
 	return schoolID, nil
 }
 
-func (d *databaseEngine) DeleteSchool(schoolName phantom.SchoolName, degree phantom.Degree, fieldOfStudy phantom.FieldOfStudy) error {
+func (d *databaseEngine) DeleteSchool(schoolName SchoolName, degree Degree, fieldOfStudy FieldOfStudy) error {
 	_, err := d.sql.Exec("DELETE FROM school WHERE school_name=$1 AND degree = $2 AND field_of_study = $3", schoolName, degree, fieldOfStudy)
 	if err != nil {
 		return helper.DatabaseError{DBError: err.Error()}
@@ -122,7 +136,7 @@ func (d *databaseEngine) DeleteSchool(schoolName phantom.SchoolName, degree phan
 	return nil
 }
 
-func (d *databaseEngine) GetSchoolID(schoolName phantom.SchoolName, degree phantom.Degree, fieldOfStudy phantom.FieldOfStudy) (SchoolID, error) {
+func (d *databaseEngine) GetSchoolID(schoolName SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error) {
 	var id SchoolID
 	rows := d.sql.QueryRow("SELECT school_id FROM school where school_name = $1  AND degree = $2 AND field_of_study = $3;", schoolName, degree, fieldOfStudy)
 
@@ -137,7 +151,7 @@ func (d *databaseEngine) GetSchoolID(schoolName phantom.SchoolName, degree phant
 	return id, nil
 }
 
-func (d *databaseEngine) AddCompanyIfNotPresent(companyName phantom.CompanyName, location phantom.Location) (CompanyID, error) {
+func (d *databaseEngine) AddCompanyIfNotPresent(companyName CompanyName, location Location) (CompanyID, error) {
 	var companyID CompanyID
 	var err error
 
@@ -164,7 +178,7 @@ func (d *databaseEngine) AddCompanyIfNotPresent(companyName phantom.CompanyName,
 	return companyID, nil
 }
 
-func (d *databaseEngine) DeleteCompany(companyName phantom.CompanyName, location phantom.Location) error {
+func (d *databaseEngine) DeleteCompany(companyName CompanyName, location Location) error {
 	_, err := d.sql.Exec("DELETE FROM company WHERE company_name=$1 AND location=$2", companyName, location)
 	if err != nil {
 		return helper.DatabaseError{DBError: err.Error()}
@@ -174,7 +188,7 @@ func (d *databaseEngine) DeleteCompany(companyName phantom.CompanyName, location
 	return nil
 }
 
-func (d *databaseEngine) GetCompanyID(companyName phantom.CompanyName, location phantom.Location) (CompanyID, error) {
+func (d *databaseEngine) GetCompanyID(companyName CompanyName, location Location) (CompanyID, error) {
 	var id CompanyID
 	rows := d.sql.QueryRow("SELECT company_id FROM company where company_name = $1  AND location = $2;", companyName, location)
 
@@ -189,7 +203,7 @@ func (d *databaseEngine) GetCompanyID(companyName phantom.CompanyName, location 
 	return id, nil
 }
 
-func (d *databaseEngine) AddUserToSchool(userID UserID, schoolID SchoolID, fromYear phantom.FromYear, toYear phantom.ToYear) error {
+func (d *databaseEngine) AddUserToSchool(userID UserID, schoolID SchoolID, fromYear FromYear, toYear ToYear) error {
 	_, err := d.sql.Exec("INSERT INTO user_to_school(user_id,school_id,from_year,to_year,insert_time) "+
 		"VALUES($1,$2,$3,$4,$5)",
 		userID, schoolID, fromYear, toYear, time.Now())
@@ -212,7 +226,7 @@ func (d *databaseEngine) RemoveUserFromSchool(userID UserID, schoolID SchoolID) 
 	return nil
 }
 
-func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]phantom.School, error) {
+func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]School, error) {
 	rows, err := d.sql.Query("SELECT school.school_name, school.degree, school.field_of_study,user_to_school.from_year, user_to_school.to_year "+
 		"FROM school INNER JOIN user_to_school ON school.school_id = user_to_school.school_id "+
 		"WHERE user_to_school.user_id=$1", userID)
@@ -222,9 +236,9 @@ func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]phantom.School, er
 
 	defer rows.Close()
 
-	var schools []phantom.School
+	var schools []School
 	for rows.Next() {
-		var school phantom.School
+		var school School
 		err = rows.Scan(&school.SchoolName, &school.Degree, &school.FieldOfStudy, &school.FromYear, &school.ToYear)
 		if err != nil {
 			return nil, helper.DatabaseError{DBError: err.Error()}
@@ -235,7 +249,7 @@ func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]phantom.School, er
 	return schools, nil
 }
 
-func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, title phantom.Title, fromYear phantom.FromYear, toYear phantom.ToYear) error {
+func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, title Title, fromYear FromYear, toYear ToYear) error {
 	_, err := d.sql.Exec("INSERT INTO user_to_company(user_id,company_id,title,from_year,to_year,insert_time) "+
 		"VALUES($1,$2,$3,$4,$5,$6)",
 		userID, companyID, title, fromYear, toYear, time.Now())
@@ -258,7 +272,7 @@ func (d *databaseEngine) RemoveUserFromCompany(userID UserID, companyID CompanyI
 	return nil
 }
 
-func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]phantom.Company, error) {
+func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]Company, error) {
 	rows, err := d.sql.Query("SELECT company.company_name, company.location "+
 		"FROM company INNER JOIN user_to_company ON company.company_id = user_to_company.company_id "+
 		"WHERE user_to_company.user_id=$1", userID)
@@ -268,9 +282,9 @@ func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]phantom.Company,
 
 	defer rows.Close()
 
-	var companies []phantom.Company
+	var companies []Company
 	for rows.Next() {
-		var company phantom.Company
+		var company Company
 		err = rows.Scan(&company.CompanyName, &company.Location)
 		if err != nil {
 			return nil, helper.DatabaseError{DBError: err.Error()}
@@ -281,15 +295,15 @@ func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]phantom.Company,
 	return companies, nil
 }
 
-func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]phantom.Group, error) {
+func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 	groups, err := d.getGroupsBySchoolsAndCompanies(userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Note: only add unique groups
-	grpMap := make(map[phantom.Group]bool)
-	var uniqGroups []phantom.Group
+	grpMap := make(map[Group]bool)
+	var uniqGroups []Group
 	for _, group := range groups {
 		if !grpMap[group] {
 			// insert into school
@@ -307,7 +321,7 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]phantom.Group, error)
 	return uniqGroups, nil
 }
 
-func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]phantom.Group, error) {
+func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {
 	rows, err := d.sql.Query("SELECT group_name FROM user_to_groups "+
 		"WHERE user_id=$1 AND status=$2", userID, true)
 	if err != nil {
@@ -316,10 +330,10 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]phantom.Group, erro
 
 	defer rows.Close()
 
-	var groups []phantom.Group
+	var groups []Group
 
 	for rows.Next() {
-		var group phantom.Group
+		var group Group
 		err = rows.Scan(&group)
 		if err != nil {
 			return nil, helper.DatabaseError{DBError: err.Error()}
@@ -331,8 +345,8 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]phantom.Group, erro
 	return groups, nil
 }
 
-func (d *databaseEngine) getGroupsBySchoolsAndCompanies(userID UserID) ([]phantom.Group, error) {
-	var groups []phantom.Group
+func (d *databaseEngine) getGroupsBySchoolsAndCompanies(userID UserID) ([]Group, error) {
+	var groups []Group
 	groupsSchools, err := d.GetSchoolsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -347,37 +361,37 @@ func (d *databaseEngine) getGroupsBySchoolsAndCompanies(userID UserID) ([]phanto
 	return groups, nil
 }
 
-func (d *databaseEngine) schoolsToGroups(schools []phantom.School) []phantom.Group {
-	var grps []phantom.Group
+func (d *databaseEngine) schoolsToGroups(schools []School) []Group {
+	var grps []Group
 
 	for _, school := range schools {
 		// add schoolName
 		schoolName := strings.Replace(string(school.SchoolName), " ", "", -1)
-		grps = append(grps, phantom.Group(schoolName))
+		grps = append(grps, Group(schoolName))
 
 		degree := strings.Replace(string(school.Degree), " ", "", -1)
 		fieldOfStudy := strings.Replace(string(school.FieldOfStudy), " ", "", -1)
 
 		// add combination of school, degree & fieldOfStudy
 		groupName := fmt.Sprintf("%s-%s-%s-%d-%d", schoolName, degree, fieldOfStudy, school.FromYear, school.ToYear)
-		grps = append(grps, phantom.Group(groupName))
+		grps = append(grps, Group(groupName))
 
 	}
 	return grps
 }
 
-func (d *databaseEngine) companiesToGroups(companies []phantom.Company) []phantom.Group {
-	var grps []phantom.Group
+func (d *databaseEngine) companiesToGroups(companies []Company) []Group {
+	var grps []Group
 
 	for _, company := range companies {
 		// add companyName
 		companyName := strings.Replace(string(company.CompanyName), " ", "", -1)
-		grps = append(grps, phantom.Group(companyName))
+		grps = append(grps, Group(companyName))
 
 		location := strings.Replace(string(company.Location), " ", "", -1)
 		// add combination of companyName & location
 		groupName := fmt.Sprintf("%s-%s", companyName, location)
-		grps = append(grps, phantom.Group(groupName))
+		grps = append(grps, Group(groupName))
 
 	}
 	return grps

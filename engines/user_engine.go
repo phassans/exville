@@ -17,10 +17,10 @@ type (
 	}
 
 	UserEngine interface {
-		SignUp(phantom.Username, phantom.Password, phantom.LinkedInURL) error
-		/*Login(Username, Password) error
+		SignUp(Username, Password, LinkedInURL) error
+		Login(Username, Password) (User, error)
 
-		GetUserProfile(Username)
+		/*GetUserProfile(Username)
 		GetProfileByURL(LinkedInURL) (Profile, error)
 
 		CreateOrVerifyGroups([]Group) error
@@ -38,7 +38,7 @@ func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine Datab
 	}, nil
 }
 
-func (u *userEngine) SignUp(username phantom.Username, password phantom.Password, linkedInURL phantom.LinkedInURL) error {
+func (u *userEngine) SignUp(username Username, password Password, linkedInURL LinkedInURL) error {
 	// add user to db
 	var userId UserID
 	var err error
@@ -56,7 +56,11 @@ func (u *userEngine) SignUp(username phantom.Username, password phantom.Password
 	return nil
 }
 
-func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, userId UserID) error {
+func (u *userEngine) Login(username Username, password Password) (User, error) {
+	return u.dbEngine.GetUserByUserNameAndPassword(username, password)
+}
+
+func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId UserID) error {
 	// get userProfile
 	profile, err := u.pClient.GetUserProfile(string(linkedInURL))
 	if err != nil {
@@ -72,7 +76,7 @@ func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, u
 	}
 
 	// update user preferences
-	if err := u.dbEngine.UpdateUserWithNameAndReference(profile.User.Firstname, profile.User.LastName, profile.FileName, userId); err != nil {
+	if err := u.dbEngine.UpdateUserWithNameAndReference(FirstName(profile.User.Firstname), LastName(profile.User.LastName), FileName(profile.FileName), userId); err != nil {
 		return err
 	}
 
@@ -88,12 +92,12 @@ func (u *userEngine) getAndProcessUserProfile(linkedInURL phantom.LinkedInURL, u
 
 func (u *userEngine) addUserToSchools(profile phantom.Profile, userID UserID) error {
 	for _, school := range profile.Schools {
-		schoolID, err := u.dbEngine.AddSchoolIfNotPresent(school.SchoolName, school.Degree, school.FieldOfStudy)
+		schoolID, err := u.dbEngine.AddSchoolIfNotPresent(SchoolName(school.SchoolName), Degree(school.Degree), FieldOfStudy(school.FieldOfStudy))
 		if err != nil {
 			return err
 		}
 
-		if err := u.dbEngine.AddUserToSchool(userID, schoolID, school.FromYear, school.ToYear); err != nil {
+		if err := u.dbEngine.AddUserToSchool(userID, schoolID, FromYear(school.FromYear), ToYear(school.ToYear)); err != nil {
 			return err
 		}
 	}
@@ -103,12 +107,12 @@ func (u *userEngine) addUserToSchools(profile phantom.Profile, userID UserID) er
 
 func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID UserID) error {
 	for _, company := range profile.Companies {
-		companyID, err := u.dbEngine.AddCompanyIfNotPresent(company.CompanyName, company.Location)
+		companyID, err := u.dbEngine.AddCompanyIfNotPresent(CompanyName(company.CompanyName), Location(company.Location))
 		if err != nil {
 			return err
 		}
 
-		if err := u.dbEngine.AddUserToCompany(userID, companyID, company.Title, company.FromYear, company.ToYear); err != nil {
+		if err := u.dbEngine.AddUserToCompany(userID, companyID, Title(company.Title), FromYear(company.FromYear), ToYear(company.ToYear)); err != nil {
 			return err
 		}
 	}

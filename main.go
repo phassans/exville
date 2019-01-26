@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -23,6 +24,12 @@ var (
 	dbEngine      engines.DatabaseEngine
 	userEngine    engines.UserEngine
 	genericEngine engines.Engine
+
+	dbHost     string
+	dbPort     string
+	dbUser     string
+	dbPassword string
+	dbDatabase string
 )
 
 func main() {
@@ -31,6 +38,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	initEnvs()
 
 	// configs
 	config()
@@ -67,6 +75,14 @@ func main() {
 	case err := <-serverErrChannel:
 		logger.Fatal().Msgf("service stopped due to error %v with uptime %v", err, time.Since(serverStartTime))
 	}
+}
+
+func initEnvs() {
+	dbHost = os.Getenv("DB_HOST")
+	dbPort = os.Getenv("DB_PORT")
+	dbUser = os.Getenv("DB_USER")
+	dbPassword = os.Getenv("DB_PASSWORD")
+	dbDatabase = os.Getenv("DB_DATABASE")
 }
 
 func initDB() {
