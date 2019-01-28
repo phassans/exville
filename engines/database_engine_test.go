@@ -45,6 +45,33 @@ func TestDatabaseEngine_AddDeleteUser(t *testing.T) {
 		err = engine.UpdateUserWithNameAndReference(testUserFirstName, testUserLastName, testFileName, userID)
 		require.NoError(t, err)
 
+		user, err := engine.GetUserByUserNameAndPassword(testUserName, testPassword)
+		require.NoError(t, err)
+		require.NotEqual(t, UserID(0), user.UserID)
+
+		user, err = engine.GetUserByUserNameAndPassword(testUserNameInvalid, testPassword)
+		require.Error(t, err)
+		require.Equal(t, UserID(0), user.UserID)
+
+		user, err = engine.GetUserByLinkedInURL(testLinkedInURL)
+		require.NoError(t, err)
+		require.NotEqual(t, UserID(0), user.UserID)
+
+		err = engine.DeleteUser(testUserName)
+		require.NoError(t, err)
+	}
+}
+func TestDatabaseEngine_AddUserDuplicates(t *testing.T) {
+	newDataBaseEngine(t)
+	{
+		userID, err := engine.AddUser(testUserName, testPassword, testLinkedInURL)
+		require.NoError(t, err)
+		require.NotEmpty(t, userID)
+
+		userID, err = engine.AddUser(testUserName, testPassword, testLinkedInURL)
+		require.Error(t, err)
+		require.Equal(t, UserID(0), userID)
+
 		err = engine.DeleteUser(testUserName)
 		require.NoError(t, err)
 	}

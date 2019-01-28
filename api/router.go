@@ -47,6 +47,7 @@ var (
 	formEndpoints = []postEndpoint{
 		signUp,
 		login,
+		userGroups,
 	}
 )
 

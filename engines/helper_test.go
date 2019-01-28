@@ -7,11 +7,12 @@ const (
 	testDatabaseUsername = "pshashidhara"
 	testDatabasePassword = "banana123"
 
-	testUserFirstName FirstName   = "Pramod"
-	testUserLastName  LastName    = "HS"
-	testUserName      Username    = "Viraagh"
-	testPassword      Password    = "123456"
-	testLinkedInURL   LinkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
+	testUserFirstName   FirstName   = "Pramod"
+	testUserLastName    LastName    = "HS"
+	testUserName        Username    = "Viraagh"
+	testUserNameInvalid Username    = "Invalid"
+	testPassword        Password    = "123456"
+	testLinkedInURL     LinkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
 
 	testSchool       SchoolName   = "Colorado State University"
 	testDegree       Degree       = "Masters"

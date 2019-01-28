@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/phassans/exville/helper"
+	"github.com/phassans/exville/common"
 	"github.com/rs/zerolog"
 )
 
@@ -22,6 +22,7 @@ type (
 		DeleteUser(username Username) error
 		UpdateUserWithNameAndReference(name FirstName, lastName LastName, fileName FileName, id UserID) error
 		GetUserByUserNameAndPassword(Username, Password) (User, error)
+		GetUserByLinkedInURL(LinkedInURL) (User, error)
 
 		// School Methods
 		AddSchoolIfNotPresent(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
@@ -52,11 +53,26 @@ func NewDatabaseEngine(psql *sql.DB, logger zerolog.Logger) DatabaseEngine {
 }
 
 func (d *databaseEngine) AddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error) {
+	user, err := d.GetUserByLinkedInURL(linkedInURL)
+	if err != nil {
+		// any error but UserError, should continue
+		if _, ok := err.(common.UserError); !ok {
+			return 0, err
+		}
+	}
+
+	if user.UserID != 0 {
+		return 0, common.DuplicateSignUp{Username: string(user.Username), LinkedInURL: string(linkedInURL), Message: fmt.Sprintf("user with linkedingURL already exists")}
+	}
+	return d.doAddUser(username, password, linkedInURL)
+}
+
+func (d *databaseEngine) doAddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error) {
 	var userID UserID
 	err := d.sql.QueryRow("INSERT INTO viraagh_user(username,password,linkedIn_URL,insert_time) "+
 		"VALUES($1,$2,$3,$4) returning user_id;", username, password, linkedInURL, time.Now()).Scan(&userID)
 	if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a user with ID: %d", userID)
@@ -67,7 +83,7 @@ func (d *databaseEngine) AddUser(username Username, password Password, linkedInU
 func (d *databaseEngine) DeleteUser(username Username) error {
 	_, err := d.sql.Exec("DELETE FROM viraagh_user WHERE username=$1", username)
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully delete user: %s", username)
@@ -86,16 +102,30 @@ func (d *databaseEngine) UpdateUserWithNameAndReference(firstName FirstName, las
 
 func (d *databaseEngine) GetUserByUserNameAndPassword(userName Username, password Password) (User, error) {
 	var user User
-	rows := d.sql.QueryRow("SELECT user_id, first_name, last_name, linkedin_url, filename WHERE username = $1 AND password = $2", userName, password)
-	err := rows.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.LinkedInURL, &user.FileName)
+	rows := d.sql.QueryRow("SELECT user_id, first_name, last_name, username, linkedin_url, filename FROM viraagh_user WHERE username = $1 AND password = $2", userName, password)
+	err := rows.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.Username, &user.LinkedInURL, &user.FileName)
 
 	if err == sql.ErrNoRows {
-		return User{}, err
+		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
 	} else if err != nil {
-		return User{}, helper.DatabaseError{DBError: err.Error()}
+		return User{}, common.DatabaseError{DBError: err.Error()}
 	}
 
 	return user, nil
+}
+
+func (d *databaseEngine) GetUserByLinkedInURL(linkedInURL LinkedInURL) (User, error) {
+	var user User
+	rows := d.sql.QueryRow("SELECT user_id, username, linkedin_url FROM viraagh_user WHERE linkedin_url = $1", linkedInURL)
+
+	switch err := rows.Scan(&user.UserID, &user.Username, &user.LinkedInURL); err {
+	case sql.ErrNoRows:
+		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+	case nil:
+		return user, nil
+	default:
+		return User{}, common.DatabaseError{DBError: err.Error()}
+	}
 }
 
 func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error) {
@@ -105,7 +135,7 @@ func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Deg
 	// check if school is present
 	schoolID, err = d.GetSchoolID(schoolName, degree, fieldOfStudy)
 	if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	if schoolID != 0 {
@@ -118,7 +148,7 @@ func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Deg
 		"VALUES($1,$2,$3,$4) returning school_id;",
 		schoolName, degree, fieldOfStudy, time.Now()).Scan(&schoolID)
 	if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a school:%s with ID: %d", schoolName, schoolID)
@@ -129,7 +159,7 @@ func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Deg
 func (d *databaseEngine) DeleteSchool(schoolName SchoolName, degree Degree, fieldOfStudy FieldOfStudy) error {
 	_, err := d.sql.Exec("DELETE FROM school WHERE school_name=$1 AND degree = $2 AND field_of_study = $3", schoolName, degree, fieldOfStudy)
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully delete school: %s", schoolName)
@@ -145,7 +175,7 @@ func (d *databaseEngine) GetSchoolID(schoolName SchoolName, degree Degree, field
 	if err == sql.ErrNoRows {
 		return 0, nil
 	} else if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	return id, nil
@@ -158,7 +188,7 @@ func (d *databaseEngine) AddCompanyIfNotPresent(companyName CompanyName, locatio
 	// check if company is present
 	companyID, err = d.GetCompanyID(companyName, location)
 	if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	if companyID != 0 {
@@ -170,7 +200,7 @@ func (d *databaseEngine) AddCompanyIfNotPresent(companyName CompanyName, locatio
 		"VALUES($1,$2,$3) returning company_id;",
 		companyName, location, time.Now()).Scan(&companyID)
 	if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a company with ID: %d", companyID)
@@ -181,7 +211,7 @@ func (d *databaseEngine) AddCompanyIfNotPresent(companyName CompanyName, locatio
 func (d *databaseEngine) DeleteCompany(companyName CompanyName, location Location) error {
 	_, err := d.sql.Exec("DELETE FROM company WHERE company_name=$1 AND location=$2", companyName, location)
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully delete company: %s", companyName)
@@ -197,7 +227,7 @@ func (d *databaseEngine) GetCompanyID(companyName CompanyName, location Location
 	if err == sql.ErrNoRows {
 		return 0, nil
 	} else if err != nil {
-		return 0, helper.DatabaseError{DBError: err.Error()}
+		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	return id, nil
@@ -208,7 +238,7 @@ func (d *databaseEngine) AddUserToSchool(userID UserID, schoolID SchoolID, fromY
 		"VALUES($1,$2,$3,$4,$5)",
 		userID, schoolID, fromYear, toYear, time.Now())
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a user: %d to school: %d", userID, schoolID)
@@ -219,7 +249,7 @@ func (d *databaseEngine) AddUserToSchool(userID UserID, schoolID SchoolID, fromY
 func (d *databaseEngine) RemoveUserFromSchool(userID UserID, schoolID SchoolID) error {
 	_, err := d.sql.Exec("DELETE FROM user_to_school WHERE user_id=$1 AND school_id=$2", userID, schoolID)
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully removed user: %d from school: %d", userID, schoolID)
@@ -231,7 +261,7 @@ func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]School, error) {
 		"FROM school INNER JOIN user_to_school ON school.school_id = user_to_school.school_id "+
 		"WHERE user_to_school.user_id=$1", userID)
 	if err != nil {
-		return nil, helper.DatabaseError{DBError: err.Error()}
+		return nil, common.DatabaseError{DBError: err.Error()}
 	}
 
 	defer rows.Close()
@@ -241,7 +271,7 @@ func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]School, error) {
 		var school School
 		err = rows.Scan(&school.SchoolName, &school.Degree, &school.FieldOfStudy, &school.FromYear, &school.ToYear)
 		if err != nil {
-			return nil, helper.DatabaseError{DBError: err.Error()}
+			return nil, common.DatabaseError{DBError: err.Error()}
 		}
 		schools = append(schools, school)
 	}
@@ -254,7 +284,7 @@ func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, ti
 		"VALUES($1,$2,$3,$4,$5,$6)",
 		userID, companyID, title, fromYear, toYear, time.Now())
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a user: %d to company: %d", userID, companyID)
@@ -265,7 +295,7 @@ func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, ti
 func (d *databaseEngine) RemoveUserFromCompany(userID UserID, companyID CompanyID) error {
 	_, err := d.sql.Exec("DELETE FROM user_to_company WHERE user_id=$1 AND company_id=$2", userID, companyID)
 	if err != nil {
-		return helper.DatabaseError{DBError: err.Error()}
+		return common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully removed user: %d from company: %d", userID, companyID)
@@ -277,7 +307,7 @@ func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]Company, error) 
 		"FROM company INNER JOIN user_to_company ON company.company_id = user_to_company.company_id "+
 		"WHERE user_to_company.user_id=$1", userID)
 	if err != nil {
-		return nil, helper.DatabaseError{DBError: err.Error()}
+		return nil, common.DatabaseError{DBError: err.Error()}
 	}
 
 	defer rows.Close()
@@ -287,7 +317,7 @@ func (d *databaseEngine) GetCompaniesByUserID(userID UserID) ([]Company, error) 
 		var company Company
 		err = rows.Scan(&company.CompanyName, &company.Location)
 		if err != nil {
-			return nil, helper.DatabaseError{DBError: err.Error()}
+			return nil, common.DatabaseError{DBError: err.Error()}
 		}
 		companies = append(companies, company)
 	}
@@ -309,7 +339,7 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 			// insert into school
 			_, err = d.sql.Exec("INSERT INTO user_to_groups(user_id,group_name,status) VALUES($1,$2,$3);", userID, group, true)
 			if err != nil {
-				return nil, helper.DatabaseError{DBError: err.Error()}
+				return nil, common.DatabaseError{DBError: err.Error()}
 			}
 			grpMap[group] = true
 			uniqGroups = append(uniqGroups, group)
@@ -325,7 +355,7 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {
 	rows, err := d.sql.Query("SELECT group_name FROM user_to_groups "+
 		"WHERE user_id=$1 AND status=$2", userID, true)
 	if err != nil {
-		return nil, helper.DatabaseError{DBError: err.Error()}
+		return nil, common.DatabaseError{DBError: err.Error()}
 	}
 
 	defer rows.Close()
@@ -336,7 +366,7 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {
 		var group Group
 		err = rows.Scan(&group)
 		if err != nil {
-			return nil, helper.DatabaseError{DBError: err.Error()}
+			return nil, common.DatabaseError{DBError: err.Error()}
 		}
 		groups = append(groups, group)
 

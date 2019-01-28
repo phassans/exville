@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS viraagh_user
   linkedIn_url  TEXT      NOT NULL,
   filename      TEXT      NULL,
   insert_time   TIMESTAMP NOT NULL,
-  PRIMARY KEY   (user_id)
+  PRIMARY KEY   (user_id),
+  UNIQUE        (linkedIn_url)
 );
 
 CREATE TABLE IF NOT EXISTS school

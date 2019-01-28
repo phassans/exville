@@ -41,6 +41,7 @@ type (
 		FirstName   FirstName
 		LastName    LastName
 		UserID      UserID
+		Username    Username
 		LinkedInURL LinkedInURL
 		FileName    FileName
 	}

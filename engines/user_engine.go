@@ -1,8 +1,6 @@
 package engines
 
 import (
-	"fmt"
-
 	"github.com/phassans/exville/clients/phantom"
 	"github.com/phassans/exville/clients/rocket"
 	"github.com/rs/zerolog"
@@ -20,8 +18,8 @@ type (
 		SignUp(Username, Password, LinkedInURL) error
 		Login(Username, Password) (User, error)
 
-		/*GetUserProfile(Username)
-		GetProfileByURL(LinkedInURL) (Profile, error)
+		GetUserChatGroups(UserID) ([]Group, error)
+		/*GetProfileByURL(LinkedInURL) (Profile, error)
 
 		CreateOrVerifyGroups([]Group) error
 		AddUserToGroups(User, []Group)
@@ -60,6 +58,10 @@ func (u *userEngine) Login(username Username, password Password) (User, error) {
 	return u.dbEngine.GetUserByUserNameAndPassword(username, password)
 }
 
+func (u *userEngine) GetUserChatGroups(userID UserID) ([]Group, error) {
+	return u.dbEngine.GetGroupsByUserID(userID)
+}
+
 func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId UserID) error {
 	// get userProfile
 	profile, err := u.pClient.GetUserProfile(string(linkedInURL))
@@ -81,11 +83,10 @@ func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId Us
 	}
 
 	// update user preferences
-	grps, err := u.dbEngine.AddGroupsToUser(userId)
+	_, err = u.dbEngine.AddGroupsToUser(userId)
 	if err != nil {
 		return err
 	}
-	fmt.Println(grps)
 
 	return nil
 }

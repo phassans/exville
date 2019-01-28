@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/phassans/exville/clients/phantom"
+
 	"github.com/joho/godotenv"
 	"github.com/phassans/exville/clients/rocket"
 	"github.com/phassans/exville/common"
@@ -17,9 +19,10 @@ import (
 )
 
 var (
-	roach        db.Roach
-	logger       zerolog.Logger
-	rocketClient rocket.Client
+	roach         db.Roach
+	logger        zerolog.Logger
+	rocketClient  rocket.Client
+	phantomClient phantom.Client
 
 	dbEngine      engines.DatabaseEngine
 	userEngine    engines.UserEngine
@@ -55,7 +58,7 @@ func main() {
 
 	// initialize engines
 	dbEngine = engines.NewDatabaseEngine(roach.Db, logger)
-	userEngine, err = engines.NewUserEngine(rocketClient, nil, dbEngine, logger)
+	userEngine, err = engines.NewUserEngine(rocketClient, phantomClient, dbEngine, logger)
 	if err != nil {
 		logger = logger.With().Str("error", err.Error()).Logger()
 		logger.Fatal().Msgf("could not initialize userEngine")
@@ -99,4 +102,8 @@ func initDependencies() {
 	// initialize rocket client
 	rocketClient = rocket.NewRocketClient(rocketURL, logger)
 	logger.Info().Msg("init rocket client")
+
+	phantomClient = phantom.NewPhantomClient(phantomURL, logger)
+	logger.Info().Msg("init phantom client")
+
 }

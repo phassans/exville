@@ -11,8 +11,8 @@ import (
 
 // APIError is a HTTP result error.
 type APIError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code         int    `json:"code"`
+	ErrorMessage string `json:"error"`
 }
 
 // NewAPIError returns a new result error.
@@ -21,7 +21,7 @@ func NewAPIError(err error) *APIError {
 		return nil
 	}
 
-	return &APIError{Code: GetErrorStatus(err), Message: err.Error()}
+	return &APIError{Code: GetErrorStatus(err), ErrorMessage: err.Error()}
 }
 
 func (e *APIError) Error() string {
@@ -40,20 +40,12 @@ func GetErrorStatus(err error) int {
 		return http.StatusOK
 	}
 	switch err := err.(type) {
-	case common.LocationError:
-		return http.StatusBadRequest
-	case common.DuplicateEntity:
-		return http.StatusBadRequest
-	case common.ValidationError:
-		return http.StatusBadRequest
-	case common.UserError:
-		return http.StatusBadRequest
-	case common.ListingDoesNotExist:
-		return http.StatusBadRequest
-	case common.DatabaseError:
-		return http.StatusBadRequest
 	case *APIError:
 		return err.Code
+	case common.UserError:
+		return http.StatusBadRequest
+	case common.DuplicateSignUp:
+		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}

@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/phassans/exville/engines"
+
 	"github.com/phassans/exville/common"
 )
 
 type (
 	signUpRequest struct {
-		UserName    string `json:"userName"`
-		Password    string `json:"password,omitempty"`
-		LinkedInURL string `json:"linkedInURL"`
+		UserName    engines.Username    `json:"userName"`
+		Password    engines.Password    `json:"password,omitempty"`
+		LinkedInURL engines.LinkedInURL `json:"linkedInURL"`
 	}
 
 	signUpResponse struct {
@@ -32,14 +34,15 @@ func (r signUpEndpoint) Execute(ctx context.Context, rtr *router, requestI inter
 		return nil, err
 	}
 
-	result := signUpResponse{signUpRequest: request, Error: NewAPIError(nil)}
-	return result, nil
+	err := rtr.engines.SignUp(request.UserName, request.Password, request.LinkedInURL)
+	result := signUpResponse{signUpRequest: request, Error: NewAPIError(err)}
+	return result, err
 }
 
 func (r signUpEndpoint) Validate(request interface{}) error {
 	input := request.(signUpRequest)
-	if strings.TrimSpace(input.UserName) == "" ||
-		strings.TrimSpace(input.Password) == "" {
+	if strings.TrimSpace(string(input.UserName)) == "" ||
+		strings.TrimSpace(string(input.Password)) == "" {
 		return common.ValidationError{Message: fmt.Sprint("signUp failed, missing fields")}
 	}
 	return nil

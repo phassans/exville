@@ -44,10 +44,14 @@ func newUserEngine(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestUserEngine_SignUp(t *testing.T) {
+func TestUserEngine_SignUp_Login(t *testing.T) {
 	newUserEngine(t)
 	{
 		err := uEngine.SignUp(testUserName, testPassword, testLinkedInURL)
 		require.NoError(t, err)
+
+		user, err := uEngine.Login(testUserName, testPassword)
+		require.NoError(t, err)
+		require.NotEqual(t, UserID(0), user.UserID)
 	}
 }
