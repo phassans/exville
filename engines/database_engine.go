@@ -44,6 +44,7 @@ type (
 
 		AddGroupsToUser(userID UserID) ([]Group, error)
 		GetGroupsByUserID(userID UserID) ([]Group, error)
+		ToggleUserGroup(userID UserID, group Group, status bool) error
 	}
 )
 
@@ -349,6 +350,17 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 	}
 
 	return uniqGroups, nil
+}
+
+func (d *databaseEngine) ToggleUserGroup(userID UserID, group Group, status bool) error {
+	updateUserGroups := `UPDATE user_to_groups SET status = $1 WHERE user_id=$2 AND group_name=$3;`
+	_, err := d.sql.Exec(updateUserGroups, status, userID, group)
+	if err != nil {
+		return err
+	}
+
+	d.logger.Info().Msgf("user with ID:%d removed from group: %s", userID, group)
+	return nil
 }
 
 func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {

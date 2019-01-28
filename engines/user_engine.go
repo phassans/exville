@@ -19,6 +19,7 @@ type (
 		Login(Username, Password) (User, error)
 
 		GetUserChatGroups(UserID) ([]Group, error)
+		ToggleUserGroup(UserID, Group, bool) error
 		/*GetProfileByURL(LinkedInURL) (Profile, error)
 
 		CreateOrVerifyGroups([]Group) error
@@ -60,6 +61,10 @@ func (u *userEngine) Login(username Username, password Password) (User, error) {
 
 func (u *userEngine) GetUserChatGroups(userID UserID) ([]Group, error) {
 	return u.dbEngine.GetGroupsByUserID(userID)
+}
+
+func (u *userEngine) ToggleUserGroup(userID UserID, group Group, status bool) error {
+	return u.dbEngine.ToggleUserGroup(userID, group, status)
 }
 
 func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId UserID) error {

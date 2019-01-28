@@ -46,6 +46,8 @@ func GetErrorStatus(err error) int {
 		return http.StatusBadRequest
 	case common.DuplicateSignUp:
 		return http.StatusBadRequest
+	case common.ValidationError:
+		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}

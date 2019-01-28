@@ -48,6 +48,7 @@ var (
 		signUp,
 		login,
 		userGroups,
+		userGroupToggle,
 	}
 )
 
