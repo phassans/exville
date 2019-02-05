@@ -42,6 +42,7 @@ type (
 		AddUserToCompany(userID UserID, companyID CompanyID, title Title, fromYear FromYear, toYear ToYear) error
 		RemoveUserFromCompany(userID UserID, companyID CompanyID) error
 
+		// UserGroups
 		AddGroupsToUser(userID UserID) ([]Group, error)
 		GetGroupsByUserID(userID UserID) ([]Group, error)
 		ToggleUserGroup(userID UserID, group Group, status bool) error
