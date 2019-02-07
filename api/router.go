@@ -49,6 +49,7 @@ var (
 		login,
 		userGroups,
 		userGroupToggle,
+		refresh,
 	}
 )
 

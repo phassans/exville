@@ -15,7 +15,7 @@ var (
 
 // defaults
 var (
-	hystrixHTTPTimeout = 30 * time.Second
+	hystrixHTTPTimeout = 60 * time.Second
 	maxHTTPConcurrency = 3000
 	serverPort         = "8080"
 	serverErrChannel   = make(chan error)

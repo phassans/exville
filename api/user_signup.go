@@ -18,7 +18,8 @@ type (
 
 	signUpResponse struct {
 		signUpRequest
-		Error *APIError `json:"error,omitempty"`
+		UserId engines.UserID `json:"userId"`
+		Error  *APIError      `json:"error,omitempty"`
 	}
 
 	signUpEndpoint struct{}
@@ -33,8 +34,8 @@ func (r signUpEndpoint) Execute(ctx context.Context, rtr *router, requestI inter
 		return nil, err
 	}
 
-	err := rtr.engines.SignUp(request.UserName, request.Password, request.LinkedInURL)
-	result := signUpResponse{signUpRequest: request, Error: NewAPIError(err)}
+	user, err := rtr.engines.SignUp(request.UserName, request.Password, request.LinkedInURL)
+	result := signUpResponse{signUpRequest: request, Error: NewAPIError(err), UserId: user.UserID}
 	return result, err
 }
 

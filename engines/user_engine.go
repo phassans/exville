@@ -15,8 +15,9 @@ type (
 	}
 
 	UserEngine interface {
-		SignUp(Username, Password, LinkedInURL) error
+		SignUp(Username, Password, LinkedInURL) (User, error)
 		Login(Username, Password) (User, error)
+		Refresh(UserID) error
 
 		GetUserChatGroups(UserID) ([]Group, error)
 		ToggleUserGroup(UserID, Group, bool) error
@@ -37,7 +38,7 @@ func NewUserEngine(rClient rocket.Client, pClient phantom.Client, dbEngine Datab
 	}, nil
 }
 
-func (u *userEngine) SignUp(username Username, password Password, linkedInURL LinkedInURL) error {
+func (u *userEngine) SignUp(username Username, password Password, linkedInURL LinkedInURL) (User, error) {
 	// add user to db
 	var userId UserID
 	var err error
@@ -45,10 +46,28 @@ func (u *userEngine) SignUp(username Username, password Password, linkedInURL Li
 	// add user
 	userId, err = u.dbEngine.AddUser(username, password, linkedInURL)
 	if err != nil {
-		return err
+		return User{}, err
 	}
 
 	if err := u.getAndProcessUserProfile(linkedInURL, userId); err != nil {
+		return User{}, err
+	}
+
+	return User{UserID: userId}, nil
+}
+
+func (u *userEngine) Refresh(userID UserID) error {
+	// add user to db
+	var userId UserID
+	var err error
+
+	// getUser
+	user, err := u.dbEngine.GetUserByUserID(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := u.getAndProcessUserProfile(user.LinkedInURL, userId); err != nil {
 		return err
 	}
 

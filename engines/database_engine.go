@@ -23,6 +23,7 @@ type (
 		UpdateUserWithNameAndReference(name FirstName, lastName LastName, fileName FileName, id UserID) error
 		GetUserByUserNameAndPassword(Username, Password) (User, error)
 		GetUserByLinkedInURL(LinkedInURL) (User, error)
+		GetUserByUserID(UserID) (User, error)
 
 		// School Methods
 		AddSchoolIfNotPresent(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
@@ -64,7 +65,8 @@ func (d *databaseEngine) AddUser(username Username, password Password, linkedInU
 	}
 
 	if user.UserID != 0 {
-		return 0, common.DuplicateSignUp{Username: string(user.Username), LinkedInURL: string(linkedInURL), Message: fmt.Sprintf("user with linkedingURL already exists")}
+		// return 0, common.DuplicateSignUp{Username: string(user.Username), LinkedInURL: string(linkedInURL), Message: fmt.Sprintf("user with linkedingURL already exists")}
+		return user.UserID, nil
 	}
 	return d.doAddUser(username, password, linkedInURL)
 }
@@ -119,6 +121,20 @@ func (d *databaseEngine) GetUserByUserNameAndPassword(userName Username, passwor
 func (d *databaseEngine) GetUserByLinkedInURL(linkedInURL LinkedInURL) (User, error) {
 	var user User
 	rows := d.sql.QueryRow("SELECT user_id, username, linkedin_url FROM viraagh_user WHERE linkedin_url = $1", linkedInURL)
+
+	switch err := rows.Scan(&user.UserID, &user.Username, &user.LinkedInURL); err {
+	case sql.ErrNoRows:
+		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+	case nil:
+		return user, nil
+	default:
+		return User{}, common.DatabaseError{DBError: err.Error()}
+	}
+}
+
+func (d *databaseEngine) GetUserByUserID(userID UserID) (User, error) {
+	var user User
+	rows := d.sql.QueryRow("SELECT user_id, username, linkedin_url FROM viraagh_user WHERE user_id = $1", userID)
 
 	switch err := rows.Scan(&user.UserID, &user.Username, &user.LinkedInURL); err {
 	case sql.ErrNoRows:
