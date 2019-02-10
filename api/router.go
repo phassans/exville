@@ -91,6 +91,9 @@ func NewRESTRouter(engines engines.Engine) http.Handler {
 				r.Post(endpoint.GetPath(), rtr.newPostHandler(endpoint))
 			})
 		}
+
+		r.Post("/uploadimage", rtr.uploadFile())
+
 	})
 
 	return rtr
