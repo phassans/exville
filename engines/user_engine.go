@@ -18,6 +18,8 @@ type (
 		SignUp(Username, Password, LinkedInURL) (User, error)
 		Login(Username, Password) (User, error)
 		Refresh(UserID) error
+		ChangePassword(UserID, Password) error
+		DeleteUser(UserID) error
 
 		GetUserChatGroups(UserID) ([]Group, error)
 		ToggleUserGroup(UserID, Group, bool) error
@@ -57,7 +59,6 @@ func (u *userEngine) SignUp(username Username, password Password, linkedInURL Li
 }
 
 func (u *userEngine) Refresh(userID UserID) error {
-	// add user to db
 	var userId UserID
 	var err error
 
@@ -70,6 +71,37 @@ func (u *userEngine) Refresh(userID UserID) error {
 	if err := u.getAndProcessUserProfile(user.LinkedInURL, userId); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (u *userEngine) ChangePassword(userID UserID, password Password) error {
+	var err error
+
+	// getUser
+	_, err = u.dbEngine.GetUserByUserID(userID)
+	if err != nil {
+		return err
+	}
+
+	// update user preferences
+	if err := u.dbEngine.UpdateUserPassword(userID, password); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userEngine) DeleteUser(userID UserID) error {
+	var err error
+
+	// getUser
+	_, err = u.dbEngine.GetUserByUserID(userID)
+	if err != nil {
+		return err
+	}
+
+	// not deleting user now, will think about it more
 
 	return nil
 }

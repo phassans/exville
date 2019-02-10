@@ -50,6 +50,8 @@ var (
 		userGroups,
 		userGroupToggle,
 		refresh,
+		userChangePwd,
+		userDelete,
 	}
 )
 

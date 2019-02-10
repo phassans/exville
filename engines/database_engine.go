@@ -24,6 +24,7 @@ type (
 		GetUserByUserNameAndPassword(Username, Password) (User, error)
 		GetUserByLinkedInURL(LinkedInURL) (User, error)
 		GetUserByUserID(UserID) (User, error)
+		UpdateUserPassword(UserID, Password) error
 
 		// School Methods
 		AddSchoolIfNotPresent(school SchoolName, degree Degree, fieldOfStudy FieldOfStudy) (SchoolID, error)
@@ -98,6 +99,16 @@ func (d *databaseEngine) UpdateUserWithNameAndReference(firstName FirstName, las
 	updateUserWithNameAndReferenceSQL := `UPDATE viraagh_user SET first_name = $1, last_name = $2, filename = $3 WHERE user_id=$4;`
 
 	_, err := d.sql.Exec(updateUserWithNameAndReferenceSQL, firstName, lastName, fileName, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *databaseEngine) UpdateUserPassword(id UserID, password Password) error {
+	updateUserPassword := `UPDATE viraagh_user SET password = $1 WHERE user_id=$2;`
+
+	_, err := d.sql.Exec(updateUserPassword, password, id)
 	if err != nil {
 		return err
 	}
