@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// https://dev.to/gcdcoder/how-to-upload-files-with-golang-and-ajax
+
 func (rtr *router) uploadFile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
