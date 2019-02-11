@@ -1,8 +1,8 @@
 package main
 
 const (
-	rocketURL           = "http://65.255.36.179:3000"
+	rocketURL           = "https://chat.districtchat.com"
 	rocketAdminUser     = "pramod"
-	rocketAdminPassword = "123456"
+	rocketAdminPassword = "12345678"
 	phantomURL          = "https://phantombuster.com"
 )

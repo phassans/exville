@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 
-	uuid "github.com/nu7hatch/gouuid"
+	"github.com/nu7hatch/gouuid"
 )
 
 func (c *client) CrawlUrl(linkedInURL string) (CrawlResponse, error) {
@@ -83,7 +84,7 @@ func (c *client) GetSchoolsFromResponse(resp CrawlResponse) ([]School, error) {
 			if err != nil {
 				return nil, err
 			}
-			s := School{SchoolName(school.SchoolName), Degree(school.Degree), FieldOfStudy(school.DegreeSpec), from, to}
+			s := School{SchoolName(removeSpecialChars(school.SchoolName)), Degree(removeSpecialChars(school.Degree)), FieldOfStudy(removeSpecialChars(school.DegreeSpec)), from, to}
 			schools = append(schools, s)
 		}
 	}
@@ -99,7 +100,7 @@ func (c *client) GetCompaniesFromResponse(resp CrawlResponse) ([]Company, error)
 				return nil, err
 			}
 
-			c := Company{CompanyName(jobs.CompanyName), from, to, Title(jobs.JobTitle), Location(jobs.Location)}
+			c := Company{CompanyName(removeSpecialChars(jobs.CompanyName)), from, to, Title(removeSpecialChars(jobs.JobTitle)), Location(removeSpecialChars(jobs.Location))}
 			companies = append(companies, c)
 		}
 	}
@@ -129,4 +130,13 @@ func (c *client) SaveUserProfile(resp CrawlResponse) (FileName, error) {
 	}
 
 	return FileName(fileName), nil
+}
+
+func removeSpecialChars(str string) string {
+	// Make a Regex to say we only want letters and numbers
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	if err != nil {
+		return ""
+	}
+	return reg.ReplaceAllString(str, "")
 }

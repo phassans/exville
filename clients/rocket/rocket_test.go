@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	rocketURL         = "http://65.255.36.179:3000"
+	rocketURL         = "https://chat.districtchat.com"
 	testAdminUserName = "pramod"
-	testAdminPassword = "123456"
+	testAdminPassword = "12345678"
 
 	testName         = "banana"
 	testUsername     = "iambanana"

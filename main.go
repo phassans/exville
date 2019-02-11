@@ -101,6 +101,9 @@ func initDB() {
 func initDependencies() {
 	// initialize rocket client
 	rocketClient = rocket.NewRocketClient(rocketURL, logger)
+	if err := rocketClient.InitClient(rocketAdminUser, rocketAdminPassword); err != nil {
+		panic("could not initialize rocket client")
+	}
 	logger.Info().Msg("init rocket client")
 
 	phantomClient = phantom.NewPhantomClient(phantomURL, logger)

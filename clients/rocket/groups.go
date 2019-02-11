@@ -23,7 +23,8 @@ func (c *client) CreateGroup(request GroupCreateRequest) (GroupCreateResponse, e
 			Str("errorType", errResp.ErrorType).
 			Logger()
 		logger.Error().Msgf("CreateGroup returned with error")
-		return GroupCreateResponse{}, fmt.Errorf("CreateGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
+		//return GroupCreateResponse{}, fmt.Errorf("CreateGroup returned with error: %s, type: %s", errResp.Error, errResp.ErrorType)
+		return GroupCreateResponse{}, fmt.Errorf("%s", errResp.Error)
 	}
 
 	// read response.json

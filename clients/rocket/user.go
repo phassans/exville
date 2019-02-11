@@ -76,12 +76,13 @@ func (c *client) CreateUser(request CreateUserRequest) (CreateUserResponse, erro
 		}
 
 		logger = logger.With().
-			Str("code", errResp.Error).
-			Str("error", errResp.Message).
+			Str("error", errResp.Error).
+			Str("message", errResp.Message).
 			Str("status", errResp.Status).
 			Logger()
 		logger.Error().Msgf("create user returned with error")
-		return CreateUserResponse{}, fmt.Errorf("CreateUser returned with error: %s and code: %s", errResp.Message, errResp.Error)
+		//return CreateUserResponse{}, fmt.Errorf("CreateUser returned with error: %s and code: %s", errResp.Message, errResp.Error)
+		return CreateUserResponse{}, fmt.Errorf("%s", errResp.Error)
 
 	}
 
