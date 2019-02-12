@@ -67,7 +67,7 @@ func (c *client) CreateUser(request CreateUserRequest) (CreateUserResponse, erro
 
 	response, err := c.DoPost(request, createUser, c.GetAdminCredentials())
 	if err != nil {
-		var errResp ErrorResponse
+		var errResp Err
 		err = json.Unmarshal(response, &errResp)
 		if err != nil {
 			logger = logger.With().Str("error", err.Error()).Logger()
@@ -75,15 +75,15 @@ func (c *client) CreateUser(request CreateUserRequest) (CreateUserResponse, erro
 			return CreateUserResponse{}, err
 		}
 
-		logger = logger.With().
-			Str("error", errResp.Error).
-			Str("message", errResp.Message).
-			Str("status", errResp.Status).
-			Logger()
+		logger = logger.With().Str("error", errResp.Error).Str("errorType", errResp.ErrorType).Bool("status", errResp.Success).Logger()
 		logger.Error().Msgf("create user returned with error")
-		//return CreateUserResponse{}, fmt.Errorf("CreateUser returned with error: %s and code: %s", errResp.Message, errResp.Error)
-		return CreateUserResponse{}, fmt.Errorf("%s", errResp.Error)
 
+		// duplicate username error
+		if errResp.Error == fmt.Sprintf("%s is already in use :( [error-field-unavailable]", request.Username) {
+			return CreateUserResponse{}, ErrorDuplicateUserName{Username: request.Username}
+		}
+
+		return CreateUserResponse{}, ErrorUserCreation{ErrorMsg: errResp.Error}
 	}
 
 	// read response.json
@@ -103,7 +103,7 @@ func (c *client) DeleteUser(request DeleteUserRequest) (DeleteUserResponse, erro
 
 	response, err := c.DoPost(request, deleteUser, c.GetAdminCredentials())
 	if err != nil {
-		var errResp ErrorResponse
+		var errResp Err
 		err = json.Unmarshal(response, &errResp)
 		if err != nil {
 			logger = logger.With().Str("error", err.Error()).Logger()
@@ -111,14 +111,17 @@ func (c *client) DeleteUser(request DeleteUserRequest) (DeleteUserResponse, erro
 			return DeleteUserResponse{}, err
 		}
 
-		logger = logger.With().
-			Str("code", errResp.Error).
-			Str("error", errResp.Message).
-			Str("status", errResp.Status).
-			Logger()
+		logger = logger.With().Str("errorType", errResp.ErrorType).Str("error", errResp.Error).Bool("status", errResp.Success).Logger()
 		logger.Error().Msgf("delete user returned with error")
-		return DeleteUserResponse{}, fmt.Errorf("DeleteUser returned with error: %s and code: %s", errResp.Message, errResp.Error)
 
+		switch errResp.ErrorType {
+		case UserParamNotProvidedType:
+			return DeleteUserResponse{}, ErrorRequiredParam{ErrorMsg: fmt.Sprintf("missing required field!")}
+		case ErrorInvalidUserType:
+			return DeleteUserResponse{}, ErrorInvalidUser{ErrorMsg: fmt.Sprintf("user doesnt exist: %s", request.UserId)}
+		}
+
+		return DeleteUserResponse{}, fmt.Errorf("DeleteUser returned with error: %s", errResp.Error)
 	}
 
 	// read response.json
@@ -140,7 +143,7 @@ func (c *client) InfoUser(request InfoUserRequest) (InfoUserResponse, error) {
 
 	response, err := c.DoGet(urlParams, infoUser, c.GetAdminCredentials())
 	if err != nil {
-		var errResp ErrorResponse
+		var errResp Err
 		err = json.Unmarshal(response, &errResp)
 		if err != nil {
 			logger = logger.With().Str("error", err.Error()).Logger()
@@ -148,17 +151,20 @@ func (c *client) InfoUser(request InfoUserRequest) (InfoUserResponse, error) {
 			return InfoUserResponse{}, err
 		}
 
-		logger = logger.With().
-			Str("code", errResp.Error).
-			Str("error", errResp.Message).
-			Str("status", errResp.Status).
-			Logger()
+		logger = logger.With().Str("error", errResp.Error).Str("errorType", errResp.ErrorType).Bool("status", errResp.Success).Logger()
 		logger.Error().Msgf("info user returned with error")
-		return InfoUserResponse{}, fmt.Errorf("InfoUser returned with error: %s and code: %s", errResp.Message, errResp.Error)
+
+		switch errResp.ErrorType {
+		case UserParamNotProvidedType:
+			return InfoUserResponse{}, ErrorRequiredParam{ErrorMsg: fmt.Sprintf("missing required field!")}
+		case ErrorInvalidUserType:
+			return InfoUserResponse{}, ErrorInvalidUser{ErrorMsg: fmt.Sprintf("user doesnt exist: %s", request.Username)}
+		}
+
+		return InfoUserResponse{}, fmt.Errorf("InfoUser returned with error: %s", errResp.Error)
 
 	}
 
-	// read response.json
 	var resp InfoUserResponse
 	err = json.Unmarshal(response, &resp)
 	if err != nil {

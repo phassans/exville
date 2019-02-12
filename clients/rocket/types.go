@@ -187,9 +187,9 @@ type (
 	}
 
 	GroupErrorResponse struct {
-		Success   bool   `json:"success"`
-		Error     string `json:"error"`
-		ErrorType string `json:"errorType"`
+		Success   bool   `json:"success,omitempty"`
+		Error     string `json:"error,omitempty"`
+		ErrorType string `json:"errorType,omitempty"`
 	}
 
 	DeleteGroupRequest struct {
