@@ -9,9 +9,9 @@ type (
 	}
 
 	Client interface {
-		CrawlUrl(string) (CrawlResponse, error)
+		CrawlUrl(string, bool) (CrawlResponse, error)
 
-		GetUserProfile(string) (Profile, error)
+		GetUserProfile(string, bool) (Profile, error)
 		SaveUserProfile(resp CrawlResponse) (FileName, error)
 
 		GetSchoolsFromResponse(resp CrawlResponse) ([]School, error)

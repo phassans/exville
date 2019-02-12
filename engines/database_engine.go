@@ -263,16 +263,36 @@ func (d *databaseEngine) GetCompanyID(companyName CompanyName, location Location
 }
 
 func (d *databaseEngine) AddUserToSchool(userID UserID, schoolID SchoolID, fromYear FromYear, toYear ToYear) error {
-	_, err := d.sql.Exec("INSERT INTO user_to_school(user_id,school_id,from_year,to_year,insert_time) "+
-		"VALUES($1,$2,$3,$4,$5)",
-		userID, schoolID, fromYear, toYear, time.Now())
+	count, err := d.GetUserToSchoolByUserAndSchool(userID, schoolID, fromYear, toYear)
 	if err != nil {
-		return common.DatabaseError{DBError: err.Error()}
+		return err
 	}
 
-	d.logger.Info().Msgf("successfully added a user: %d to school: %d", userID, schoolID)
+	if count == 0 {
+		_, err := d.sql.Exec("INSERT INTO user_to_school(user_id,school_id,from_year,to_year,insert_time) "+
+			"VALUES($1,$2,$3,$4,$5)",
+			userID, schoolID, fromYear, toYear, time.Now())
+		if err != nil {
+			return common.DatabaseError{DBError: err.Error()}
+		}
+		d.logger.Info().Msgf("successfully added a user: %d to school: %d", userID, schoolID)
+	}
 
 	return nil
+}
+
+func (d *databaseEngine) GetUserToSchoolByUserAndSchool(userID UserID, schoolID SchoolID, fromYear FromYear, toYear ToYear) (int, error) {
+	var count int
+	rows := d.sql.QueryRow("SELECT count(*) FROM user_to_school WHERE user_id = $1 AND school_id = $2 AND from_year = $3 AND to_year = $4", userID, schoolID, fromYear, toYear)
+	err := rows.Scan(&count)
+
+	if err == sql.ErrNoRows {
+		return 0, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+	} else if err != nil {
+		return 0, common.DatabaseError{DBError: err.Error()}
+	}
+
+	return count, nil
 }
 
 func (d *databaseEngine) RemoveUserFromSchool(userID UserID, schoolID SchoolID) error {
@@ -309,16 +329,37 @@ func (d *databaseEngine) GetSchoolsByUserID(userID UserID) ([]School, error) {
 }
 
 func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, title Title, fromYear FromYear, toYear ToYear) error {
-	_, err := d.sql.Exec("INSERT INTO user_to_company(user_id,company_id,title,from_year,to_year,insert_time) "+
-		"VALUES($1,$2,$3,$4,$5,$6)",
-		userID, companyID, title, fromYear, toYear, time.Now())
+	count, err := d.GetUserToCompanyByUserAndCompany(userID, companyID, title, fromYear, toYear)
 	if err != nil {
-		return common.DatabaseError{DBError: err.Error()}
+		return err
 	}
 
-	d.logger.Info().Msgf("successfully added a user: %d to company: %d", userID, companyID)
+	if count == 0 {
+		_, err := d.sql.Exec("INSERT INTO user_to_company(user_id,company_id,title,from_year,to_year,insert_time) "+
+			"VALUES($1,$2,$3,$4,$5,$6)",
+			userID, companyID, title, fromYear, toYear, time.Now())
+		if err != nil {
+			return common.DatabaseError{DBError: err.Error()}
+		}
+
+		d.logger.Info().Msgf("successfully added a user: %d to company: %d", userID, companyID)
+	}
 
 	return nil
+}
+
+func (d *databaseEngine) GetUserToCompanyByUserAndCompany(userID UserID, companyID CompanyID, title Title, fromYear FromYear, toYear ToYear) (int, error) {
+	var count int
+	rows := d.sql.QueryRow("SELECT count(*) FROM user_to_company WHERE user_id = $1 AND company_id = $2 AND title = $3 AND from_year = $4 AND to_year = $5", userID, companyID, title, fromYear, toYear)
+	err := rows.Scan(&count)
+
+	if err == sql.ErrNoRows {
+		return 0, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+	} else if err != nil {
+		return 0, common.DatabaseError{DBError: err.Error()}
+	}
+
+	return count, nil
 }
 
 func (d *databaseEngine) RemoveUserFromCompany(userID UserID, companyID CompanyID) error {
@@ -359,11 +400,13 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 	if err != nil {
 		return nil, err
 	}
+	userGroups, err := d.GetGroupsByUserID(userID)
+	diffGroups := difference(groups, userGroups)
 
 	// Note: only add unique groups
 	grpMap := make(map[Group]bool)
 	var uniqGroups []Group
-	for _, group := range groups {
+	for _, group := range diffGroups {
 		if !grpMap[group] {
 			// insert into school
 			_, err = d.sql.Exec("INSERT INTO user_to_groups(user_id,group_name,status) VALUES($1,$2,$3);", userID, group, true)
@@ -378,6 +421,20 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 	}
 
 	return uniqGroups, nil
+}
+
+func difference(a, b []Group) []Group {
+	mb := map[Group]bool{}
+	for _, x := range b {
+		mb[x] = true
+	}
+	ab := []Group{}
+	for _, x := range a {
+		if _, ok := mb[x]; !ok {
+			ab = append(ab, x)
+		}
+	}
+	return ab
 }
 
 func (d *databaseEngine) ToggleUserGroup(userID UserID, group Group, status bool) error {

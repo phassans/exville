@@ -5,15 +5,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"time"
 
 	"github.com/nu7hatch/gouuid"
 )
 
-func (c *client) CrawlUrl(linkedInURL string) (CrawlResponse, error) {
+const (
+	jsonFile = "response.json"
+)
+
+func (c *client) CrawlUrl(linkedInURL string, file bool) (CrawlResponse, error) {
 	arg := Argument{
 		SessionCookie: sessionCookie,
 		ProfileUrls:   []string{linkedInURL},
 		NoDatabase:    true,
+	}
+
+	if file {
+		return c.doCrawlUrlFile()
 	}
 
 	return c.doCrawlUrl(
@@ -21,6 +30,21 @@ func (c *client) CrawlUrl(linkedInURL string) (CrawlResponse, error) {
 			Argument: arg,
 		},
 	)
+}
+
+func (c *client) doCrawlUrlFile() (CrawlResponse, error) {
+	time.Sleep(20 * time.Second)
+	plan, err := ioutil.ReadFile(userDataPath + jsonFile)
+	if err != nil {
+		return CrawlResponse{}, nil
+	}
+
+	var resp Response
+	err = json.Unmarshal(plan, &resp)
+	if err != nil {
+		return CrawlResponse{}, nil
+	}
+	return CrawlResponse{Data: resp}, nil
 }
 
 func (c *client) doCrawlUrl(request CrawlRequest) (CrawlResponse, error) {
@@ -44,10 +68,13 @@ func (c *client) doCrawlUrl(request CrawlRequest) (CrawlResponse, error) {
 	return resp, nil
 }
 
-func (c *client) GetUserProfile(linkedInURL string) (Profile, error) {
-	resp, err := c.CrawlUrl(string(linkedInURL))
+func (c *client) GetUserProfile(linkedInURL string, isFile bool) (Profile, error) {
+	resp, err := c.CrawlUrl(string(linkedInURL), isFile)
 	if err != nil {
 		return Profile{}, err
+	}
+	if resp.Status == "error" {
+		return Profile{}, fmt.Errorf("%s", resp.Message)
 	}
 
 	fileName, err := c.SaveUserProfile(resp)

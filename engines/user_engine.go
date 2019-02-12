@@ -26,11 +26,6 @@ type (
 
 		GetUserChatGroups(UserID) ([]Group, error)
 		ToggleUserGroup(UserID, Group, bool) error
-		/*GetProfileByURL(LinkedInURL) (Profile, error)
-
-		CreateOrVerifyGroups([]Group) error
-		AddUserToGroups(User, []Group)
-		RemoveUserFromGroups(User, []Group)*/
 	}
 )
 
@@ -97,7 +92,6 @@ func (u *userEngine) createUserIfNotExist(username Username, password Password, 
 	var userId string
 	infoUserResp, err := u.rClient.InfoUser(rocket.InfoUserRequest{Username: string(username)})
 	if err != nil {
-		return userId, err
 	}
 	if infoUserResp.Success == false {
 		// create user
@@ -120,6 +114,9 @@ func (u *userEngine) createGroupsIfNotExist(groups []Group) ([]string, error) {
 		var groupID string
 		groupInfo, err := u.rClient.InfoGroup(rocket.InfoGroupRequest{RoomName: string(group)})
 		if err != nil {
+			if !strings.Contains(err.Error(), "error-room-not-found") {
+				return nil, err
+			}
 			return nil, err
 		}
 
@@ -149,11 +146,14 @@ func (u *userEngine) Refresh(userID UserID) error {
 		return err
 	}
 
-	_, _, err = u.getAndProcessUserProfile(user.LinkedInURL, userId)
+	profile, groups, err := u.getAndProcessUserProfile(user.LinkedInURL, userId)
 	if err != nil {
 		return err
 	}
 
+	if err := u.BootstrapRocketUser(user.Username, "", profile, groups); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -202,7 +202,7 @@ func (u *userEngine) ToggleUserGroup(userID UserID, group Group, status bool) er
 
 func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId UserID) (phantom.Profile, []Group, error) {
 	// get userProfile
-	profile, err := u.pClient.GetUserProfile(string(linkedInURL))
+	profile, err := u.pClient.GetUserProfile(string(linkedInURL), true)
 	if err != nil {
 		return phantom.Profile{}, nil, err
 	}
@@ -258,14 +258,3 @@ func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID UserID) 
 
 	return nil
 }
-
-/*func (u *userEngine) CreateOrCheckUserGroups(groups []Group) error {
-	logger := u.logger
-	resp, err := u.rClient.CreateGroup(rocket.GroupCreateRequest{"channel1"})
-	if err != nil {
-		return err
-	}
-
-	logger.Info().Msgf("response.json: %s", resp.Success)
-	return nil
-}*/
