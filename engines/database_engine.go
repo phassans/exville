@@ -420,7 +420,7 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 		}
 	}
 
-	return uniqGroups, nil
+	return userGroups, nil
 }
 
 func difference(a, b []Group) []Group {

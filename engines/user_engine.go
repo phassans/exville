@@ -96,7 +96,7 @@ func (u *userEngine) createUserIfNotExist(username Username, password Password, 
 	if infoUserResp.Success == false {
 		// create user
 		name := fmt.Sprintf("%s %s", profile.User.Firstname, profile.User.LastName)
-		email := fmt.Sprintf("%s.%s@gmail.com", profile.User.Firstname, profile.User.LastName)
+		email := fmt.Sprintf("%s@gmail.com", username)
 		resp, err := u.rClient.CreateUser(rocket.CreateUserRequest{Name: name, Username: string(username), Password: string(password), Email: email})
 		if err != nil {
 			return userId, err
@@ -117,7 +117,6 @@ func (u *userEngine) createGroupsIfNotExist(groups []Group) ([]string, error) {
 			if !strings.Contains(err.Error(), "error-room-not-found") {
 				return nil, err
 			}
-			return nil, err
 		}
 
 		if groupInfo.Success == false {
