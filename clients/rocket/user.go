@@ -47,7 +47,7 @@ func (c *client) Login(request UserLoginRequest) (UserLoginResponse, error) {
 			Str("status", errResp.Status).
 			Logger()
 		logger.Error().Msgf("login returned with error")
-		return UserLoginResponse{}, fmt.Errorf("login returned with error: %s and code: %s", errResp.Message, errResp.Error)
+		return UserLoginResponse{}, fmt.Errorf("login returned with error: %s", errResp.Error)
 	}
 
 	// read response.json
