@@ -68,7 +68,7 @@ func (c *client) DeleteGroup(request DeleteGroupRequest) (DeleteGroupResponse, e
 		switch errResp.ErrorType {
 		case ErrorGroupNotFoundType:
 			return DeleteGroupResponse{}, ErrorGroupNotFound{GroupName: request.RoomId}
-		case GroupParamNotProvidedType:
+		case ErrorGroupParamNotProvidedType:
 			return DeleteGroupResponse{}, ErrorRequiredParam{fmt.Sprintf("required param missing!")}
 		}
 
@@ -108,7 +108,7 @@ func (c *client) InfoGroup(request InfoGroupRequest) (InfoGroupResponse, error) 
 		switch errResp.ErrorType {
 		case ErrorGroupNotFoundType:
 			return InfoGroupResponse{}, ErrorGroupNotFound{GroupName: request.RoomName}
-		case GroupParamNotProvidedType:
+		case ErrorGroupParamNotProvidedType:
 			return InfoGroupResponse{}, ErrorRequiredParam{fmt.Sprintf("required param missing!")}
 		}
 		return InfoGroupResponse{}, fmt.Errorf("InfoGroup returned with error: %s", errResp.Error)

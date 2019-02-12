@@ -115,7 +115,7 @@ func (c *client) DeleteUser(request DeleteUserRequest) (DeleteUserResponse, erro
 		logger.Error().Msgf("delete user returned with error")
 
 		switch errResp.ErrorType {
-		case UserParamNotProvidedType:
+		case ErrorUserParamNotProvidedType:
 			return DeleteUserResponse{}, ErrorRequiredParam{ErrorMsg: fmt.Sprintf("missing required field!")}
 		case ErrorInvalidUserType:
 			return DeleteUserResponse{}, ErrorInvalidUser{ErrorMsg: fmt.Sprintf("user doesnt exist: %s", request.UserId)}
@@ -155,7 +155,7 @@ func (c *client) InfoUser(request InfoUserRequest) (InfoUserResponse, error) {
 		logger.Error().Msgf("info user returned with error")
 
 		switch errResp.ErrorType {
-		case UserParamNotProvidedType:
+		case ErrorUserParamNotProvidedType:
 			return InfoUserResponse{}, ErrorRequiredParam{ErrorMsg: fmt.Sprintf("missing required field!")}
 		case ErrorInvalidUserType:
 			return InfoUserResponse{}, ErrorInvalidUser{ErrorMsg: fmt.Sprintf("user doesnt exist: %s", request.Username)}

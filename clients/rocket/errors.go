@@ -6,12 +6,13 @@ import (
 )
 
 const (
-	UserParamNotProvidedType    = "error-user-param-not-provided"
-	ErrorInvalidUserType        = "error-invalid-user"
-	ErrorGroupNotFoundType      = "error-room-not-found"
-	GroupParamNotProvidedType   = "error-room-param-not-provided"
-	ErrorInvalidGroupNameType   = "error-invalid-room-name"
-	ErrorDuplicateGroupNameType = "error-duplicate-channel-name"
+	ErrorUserParamNotProvidedType = "error-user-param-not-provided"
+	ErrorInvalidUserType          = "error-invalid-user"
+
+	ErrorGroupNotFoundType         = "error-room-not-found"
+	ErrorGroupParamNotProvidedType = "error-room-param-not-provided"
+	ErrorInvalidGroupNameType      = "error-invalid-room-name"
+	ErrorDuplicateGroupNameType    = "error-duplicate-channel-name"
 )
 
 type ErrHTTP struct {
