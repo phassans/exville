@@ -59,8 +59,7 @@ func NewDatabaseEngine(psql *sql.DB, logger zerolog.Logger) DatabaseEngine {
 func (d *databaseEngine) AddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error) {
 	user, err := d.GetUserByLinkedInURL(linkedInURL)
 	if err != nil {
-		// any error but UserError, should continue
-		if _, ok := err.(common.UserError); !ok {
+		if _, ok := err.(common.ErrorUserNotExist); !ok {
 			return 0, err
 		}
 	}
@@ -135,7 +134,7 @@ func (d *databaseEngine) GetUserByLinkedInURL(linkedInURL LinkedInURL) (User, er
 
 	switch err := rows.Scan(&user.UserID, &user.Username, &user.LinkedInURL); err {
 	case sql.ErrNoRows:
-		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+		return User{}, common.ErrorUserNotExist{Message: fmt.Sprintf("user doesnt exist")}
 	case nil:
 		return user, nil
 	default:
@@ -168,20 +167,18 @@ func (d *databaseEngine) AddSchoolIfNotPresent(schoolName SchoolName, degree Deg
 	}
 
 	if schoolID != 0 {
-		d.logger.Info().Msgf("school:%s is added with ID: %d", schoolName, schoolID)
+		d.logger.Info().Msgf("school:%s is already added with ID: %d", schoolName, schoolID)
 		return schoolID, nil
 	}
 
 	// insert into school
-	err = d.sql.QueryRow("INSERT INTO school(school_name,degree,field_of_study,insert_time) "+
+	if err = d.sql.QueryRow("INSERT INTO school(school_name,degree,field_of_study,insert_time) "+
 		"VALUES($1,$2,$3,$4) returning school_id;",
-		schoolName, degree, fieldOfStudy, time.Now()).Scan(&schoolID)
-	if err != nil {
+		schoolName, degree, fieldOfStudy, time.Now()).Scan(&schoolID); err != nil {
 		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a school:%s with ID: %d", schoolName, schoolID)
-
 	return schoolID, nil
 }
 
@@ -225,15 +222,13 @@ func (d *databaseEngine) AddCompanyIfNotPresent(companyName CompanyName, locatio
 		return companyID, nil
 	}
 
-	err = d.sql.QueryRow("INSERT INTO company(company_name,location,insert_time) "+
+	if err = d.sql.QueryRow("INSERT INTO company(company_name,location,insert_time) "+
 		"VALUES($1,$2,$3) returning company_id;",
-		companyName, location, time.Now()).Scan(&companyID)
-	if err != nil {
+		companyName, location, time.Now()).Scan(&companyID); err != nil {
 		return 0, common.DatabaseError{DBError: err.Error()}
 	}
 
 	d.logger.Info().Msgf("successfully added a company with ID: %d", companyID)
-
 	return companyID, nil
 }
 
@@ -335,13 +330,11 @@ func (d *databaseEngine) AddUserToCompany(userID UserID, companyID CompanyID, ti
 	}
 
 	if count == 0 {
-		_, err := d.sql.Exec("INSERT INTO user_to_company(user_id,company_id,title,from_year,to_year,insert_time) "+
+		if _, err := d.sql.Exec("INSERT INTO user_to_company(user_id,company_id,title,from_year,to_year,insert_time) "+
 			"VALUES($1,$2,$3,$4,$5,$6)",
-			userID, companyID, title, fromYear, toYear, time.Now())
-		if err != nil {
+			userID, companyID, title, fromYear, toYear, time.Now()); err != nil {
 			return common.DatabaseError{DBError: err.Error()}
 		}
-
 		d.logger.Info().Msgf("successfully added a user: %d to company: %d", userID, companyID)
 	}
 
@@ -420,6 +413,7 @@ func (d *databaseEngine) AddGroupsToUser(userID UserID) ([]Group, error) {
 		}
 	}
 
+	userGroups = append(userGroups, diffGroups...)
 	return userGroups, nil
 }
 

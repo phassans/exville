@@ -25,6 +25,16 @@ func (v UserError) Error() string {
 	return fmt.Sprintf("%s", string(b))
 }
 
+// ErrorUserNotExist ...
+type ErrorUserNotExist struct {
+	Message string `json:"message,omitempty"`
+}
+
+func (v ErrorUserNotExist) Error() string {
+	b, _ := json.Marshal(v)
+	return fmt.Sprintf("%s", string(b))
+}
+
 // DuplicateSignUp ...
 type DuplicateSignUp struct {
 	Username    string `json:"username,omitempty"`

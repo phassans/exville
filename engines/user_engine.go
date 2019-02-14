@@ -81,7 +81,7 @@ func (u *userEngine) BootstrapRocketUser(username Username, password Password, p
 			return err
 		}
 		if !resp.Success {
-			fmt.Errorf("user-group association failed: group %s and user: %s", groupID, userID)
+			u.logger.Info().Msgf("user: %s and group: %s association exists", userID, groupID)
 		}
 	}
 
@@ -92,6 +92,9 @@ func (u *userEngine) createUserIfNotExist(username Username, password Password, 
 	var userId string
 	infoUserResp, err := u.rClient.InfoUser(rocket.InfoUserRequest{Username: string(username)})
 	if err != nil {
+		if err, ok := err.(rocket.ErrorInvalidUser); !ok {
+			return userId, err
+		}
 	}
 	if infoUserResp.Success == false {
 		// create user
@@ -114,8 +117,8 @@ func (u *userEngine) createGroupsIfNotExist(groups []Group) ([]string, error) {
 		var groupID string
 		groupInfo, err := u.rClient.InfoGroup(rocket.InfoGroupRequest{RoomName: string(group)})
 		if err != nil {
-			if !strings.Contains(err.Error(), "error-room-not-found") {
-				return nil, err
+			if err, ok := err.(rocket.ErrorGroupNotFound); !ok {
+				return groupIDs, err
 			}
 		}
 
@@ -239,7 +242,6 @@ func (u *userEngine) addUserToSchools(profile phantom.Profile, userID UserID) er
 			return err
 		}
 	}
-
 	return nil
 }
 
