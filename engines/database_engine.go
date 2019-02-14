@@ -65,8 +65,7 @@ func (d *databaseEngine) AddUser(username Username, password Password, linkedInU
 	}
 
 	if user.UserID != 0 {
-		// return 0, common.DuplicateSignUp{Username: string(user.Username), LinkedInURL: string(linkedInURL), Message: fmt.Sprintf("user with linkedingURL already exists")}
-		return user.UserID, nil
+		return 0, common.DuplicateSignUp{Username: string(user.Username), LinkedInURL: string(linkedInURL), Message: fmt.Sprintf("user with linkedingURL already exists")}
 	}
 	return d.doAddUser(username, password, linkedInURL)
 }
