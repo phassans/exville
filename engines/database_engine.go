@@ -148,7 +148,7 @@ func (d *databaseEngine) GetUserByUserID(userID UserID) (User, error) {
 
 	switch err := rows.Scan(&user.UserID, &user.Username, &user.LinkedInURL); err {
 	case sql.ErrNoRows:
-		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
+		return User{}, common.ErrorUserNotExist{Message: fmt.Sprintf("user doesnt exist")}
 	case nil:
 		return user, nil
 	default:
