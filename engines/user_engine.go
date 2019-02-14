@@ -67,17 +67,20 @@ func (u *userEngine) BootstrapRocketUser(username Username, password Password, p
 	if err != nil {
 		return err
 	}
+	u.logger.Info().Msgf("user: %s added to rocket!", userID)
 
 	// groups
 	groupIDs, err := u.createGroupsIfNotExist(groups)
 	if err != nil {
 		return err
 	}
+	u.logger.Info().Msgf("groups: %s added to rocket!", groupIDs)
 
 	// addUserToGroup
 	for _, groupID := range groupIDs {
 		resp, err := u.rClient.AddUserToGroup(rocket.AddUserToGroupRequest{RoomId: groupID, UserId: userID})
 		if err != nil {
+			u.logger.Info().Msgf("AddUserToGroup failed, user: %s and group: %s", userID, groupID)
 			return err
 		}
 		if !resp.Success {
@@ -96,6 +99,8 @@ func (u *userEngine) createUserIfNotExist(username Username, password Password, 
 			return userId, err
 		}
 	}
+	userId = infoUserResp.User.ID
+
 	if infoUserResp.Success == false {
 		// create user
 		name := fmt.Sprintf("%s %s", profile.User.Firstname, profile.User.LastName)
@@ -106,7 +111,6 @@ func (u *userEngine) createUserIfNotExist(username Username, password Password, 
 		}
 		userId = resp.User.ID
 	}
-	userId = infoUserResp.User.ID
 	return userId, nil
 }
 
