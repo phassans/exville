@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"regexp"
 	"time"
 
@@ -34,13 +35,24 @@ func (c *client) CrawlUrl(linkedInURL string, file bool) (CrawlResponse, error) 
 
 func (c *client) doCrawlUrlFile() (CrawlResponse, error) {
 	time.Sleep(20 * time.Second)
-	plan, err := ioutil.ReadFile(userDataPath + jsonFile)
+
+	fileName := userDataPath + jsonFile
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		fileName = jsonFile
+	}
+
+	fileBytes, err := ioutil.ReadFile(fileName)
 	if err != nil {
+		fmt.Errorf("error reading file: %s", fileName)
 		return CrawlResponse{}, nil
 	}
 
+	if len(fileBytes) == 0 {
+		fmt.Errorf("error reading file: %s and length: %d", fileName, len(fileBytes))
+	}
+
 	var resp Response
-	err = json.Unmarshal(plan, &resp)
+	err = json.Unmarshal(fileBytes, &resp)
 	if err != nil {
 		return CrawlResponse{}, nil
 	}
@@ -142,6 +154,9 @@ func (c *client) SaveUserProfile(resp CrawlResponse) (FileName, error) {
 
 	// get user name
 	user := c.GetUserFromResponse(resp)
+	if user.Firstname == "" {
+		return "", fmt.Errorf("cannot save file. firstName is empty")
+	}
 	fileName := fmt.Sprintf("%s.%s.%s.json", user.Firstname, user.LastName, u)
 
 	// marshall the resp

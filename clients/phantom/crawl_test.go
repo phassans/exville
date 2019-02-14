@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	phantomURL = "https://phantombuster.com"
+	phantomURL  = "https://phantombuster.com"
+	linkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
 )
 
 var (
@@ -23,7 +24,7 @@ func newPhantomClient(t *testing.T) {
 func TestClient_CrawlUrl(t *testing.T) {
 	newPhantomClient(t)
 	{
-		resp, err := pClient.CrawlUrl("https://www.linkedin.com/in/pramod-shashidhara-21568923", false)
+		resp, err := pClient.CrawlUrl(linkedInURL, false)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 	}
@@ -32,7 +33,7 @@ func TestClient_CrawlUrl(t *testing.T) {
 func TestClient_GetUserFromResponse(t *testing.T) {
 	newPhantomClient(t)
 	{
-		crawlResponse, err := pClient.CrawlUrl(jsonFile, true)
+		crawlResponse, err := pClient.CrawlUrl(linkedInURL, true)
 		require.NoError(t, err)
 		user := pClient.GetUserFromResponse(crawlResponse)
 		require.NoError(t, err)
@@ -66,7 +67,7 @@ func TestClient_GetCompaniesFromResponse(t *testing.T) {
 func TestClient_GetUserProfile(t *testing.T) {
 	newPhantomClient(t)
 	{
-		profile, err := pClient.GetUserProfile("https://www.linkedin.com/in/pramod-shashidhara-21568923")
+		profile, err := pClient.GetUserProfile(linkedInURL, true)
 		require.NoError(t, err)
 		require.NotNil(t, profile)
 	}
