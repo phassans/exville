@@ -47,6 +47,7 @@ type (
 		// UserGroups
 		AddGroupsToUser(userID UserID) ([]Group, error)
 		GetGroupsByUserID(userID UserID) ([]Group, error)
+		GetGroupsWithStatusByUserID(id UserID) ([]GroupWithStatus, error)
 		ToggleUserGroup(userID UserID, group Group, status bool) error
 	}
 )
@@ -459,6 +460,30 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {
 			return nil, common.DatabaseError{DBError: err.Error()}
 		}
 		groups = append(groups, group)
+
+	}
+
+	return groups, nil
+}
+
+func (d *databaseEngine) GetGroupsWithStatusByUserID(userID UserID) ([]GroupWithStatus, error) {
+	rows, err := d.sql.Query("SELECT group_name, status FROM user_to_groups "+
+		"WHERE user_id=$1 AND status=$2", userID, true)
+	if err != nil {
+		return nil, common.DatabaseError{DBError: err.Error()}
+	}
+
+	defer rows.Close()
+
+	var groups []GroupWithStatus
+
+	for rows.Next() {
+		var groupWithStatus GroupWithStatus
+		err = rows.Scan(&groupWithStatus.Group, &groupWithStatus.Status)
+		if err != nil {
+			return nil, common.DatabaseError{DBError: err.Error()}
+		}
+		groups = append(groups, groupWithStatus)
 
 	}
 

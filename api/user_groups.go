@@ -14,9 +14,9 @@ type (
 	}
 
 	userGroupsResponse struct {
-		Request userGroupsRequest `json:"request,omitempty"`
-		Groups  []engines.Group   `json:"groups,omitempty"`
-		Error   *APIError         `json:"error,omitempty"`
+		Request userGroupsRequest         `json:"request,omitempty"`
+		Groups  []engines.GroupWithStatus `json:"groups,omitempty"`
+		Error   *APIError                 `json:"error,omitempty"`
 	}
 
 	userGroupsEndpoint struct{}

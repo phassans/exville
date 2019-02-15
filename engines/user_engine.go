@@ -24,7 +24,7 @@ type (
 		ChangePassword(UserID, Password) error
 		DeleteUser(UserID) error
 
-		GetUserChatGroups(UserID) ([]Group, error)
+		GetUserChatGroups(UserID) ([]GroupWithStatus, error)
 		ToggleUserGroup(UserID, Group, bool) error
 	}
 )
@@ -198,8 +198,8 @@ func (u *userEngine) Login(username Username, password Password) (User, error) {
 	return u.dbEngine.GetUserByUserNameAndPassword(username, password)
 }
 
-func (u *userEngine) GetUserChatGroups(userID UserID) ([]Group, error) {
-	return u.dbEngine.GetGroupsByUserID(userID)
+func (u *userEngine) GetUserChatGroups(userID UserID) ([]GroupWithStatus, error) {
+	return u.dbEngine.GetGroupsWithStatusByUserID(userID)
 }
 
 func (u *userEngine) ToggleUserGroup(userID UserID, group Group, status bool) error {

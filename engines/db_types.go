@@ -61,4 +61,9 @@ type (
 		FromYear     FromYear
 		ToYear       ToYear
 	}
+
+	GroupWithStatus struct {
+		Group  Group `json:"group"`
+		Status bool  `json:"status"`
+	}
 )
