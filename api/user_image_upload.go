@@ -9,10 +9,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/phassans/exville/common"
 	"github.com/phassans/exville/engines"
-
-	"github.com/phassans/banana/helper"
-	"github.com/phassans/banana/shared"
 )
 
 type (
@@ -24,7 +22,7 @@ type (
 
 func (rtr *router) newImageHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger := shared.GetLogger()
+		logger := common.GetLogger()
 
 		err := r.ParseMultipartForm(10000000)
 		if err != nil {
@@ -91,7 +89,7 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 
 func Validate(images []*multipart.FileHeader) error {
 	if len(images) == 0 {
-		return helper.ValidationError{Message: fmt.Sprint("submit happy hour failed, missing images!")}
+		return fmt.Errorf("submit happy hour failed, missing images!")
 	}
 	return nil
 }
