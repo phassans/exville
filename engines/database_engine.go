@@ -21,6 +21,7 @@ type (
 		AddUser(username Username, password Password, linkedInURL LinkedInURL) (UserID, error)
 		DeleteUser(username Username) error
 		UpdateUserWithNameAndReference(name FirstName, lastName LastName, fileName FileName, id UserID) error
+		UpdateUserWithImage(id UserID, imageName ImageName) error
 		GetUserByUserNameAndPassword(Username, Password) (User, error)
 		GetUserByLinkedInURL(LinkedInURL) (User, error)
 		GetUserByUserID(UserID) (User, error)
@@ -98,6 +99,15 @@ func (d *databaseEngine) UpdateUserWithNameAndReference(firstName FirstName, las
 	updateUserWithNameAndReferenceSQL := `UPDATE viraagh_user SET first_name = $1, last_name = $2, filename = $3 WHERE user_id=$4;`
 
 	_, err := d.sql.Exec(updateUserWithNameAndReferenceSQL, firstName, lastName, fileName, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *databaseEngine) UpdateUserWithImage(id UserID, imageName ImageName) error {
+	updateUserWithImageSQL := `UPDATE viraagh_user SET image_name = $1 WHERE user_id=$2;`
+	_, err := d.sql.Exec(updateUserWithImageSQL, imageName, id)
 	if err != nil {
 		return err
 	}

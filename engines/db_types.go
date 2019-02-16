@@ -31,6 +31,8 @@ type (
 
 	FileName string
 
+	ImageName string
+
 	UserID int64
 
 	SchoolID int64

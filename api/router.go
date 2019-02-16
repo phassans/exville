@@ -86,13 +86,15 @@ func NewRESTRouter(engines engines.Engine) http.Handler {
 			})
 		}
 
+		r.Group(func(r chi.Router) {
+			r.Post("/uploadimage", rtr.newImageHandler())
+		})
+
 		for _, endpoint := range formEndpoints {
 			r.Group(func(r chi.Router) {
 				r.Post(endpoint.GetPath(), rtr.newPostHandler(endpoint))
 			})
 		}
-
-		r.Post("/uploadimage", rtr.uploadFile())
 
 	})
 
