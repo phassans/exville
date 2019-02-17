@@ -16,8 +16,8 @@ type (
 	}
 
 	userChangePwdResponse struct {
-		Request userChangePwdRequest `json:"request,omitempty"`
-		Error   *APIError            `json:"error,omitempty"`
+		Message string    `json:"message,omitempty"`
+		Error   *APIError `json:"error,omitempty"`
 	}
 
 	userChangePwdEndpoint struct{}
@@ -32,7 +32,8 @@ func (r userChangePwdEndpoint) Execute(ctx context.Context, rtr *router, request
 	}
 
 	err := rtr.engines.ChangePassword(request.UserID, request.Password)
-	result := userChangePwdResponse{Request: request, Error: NewAPIError(err)}
+
+	result := userChangePwdResponse{Error: NewAPIError(err), Message: r.GetMessage(err)}
 	return result, err
 }
 
@@ -47,6 +48,17 @@ func (r userChangePwdEndpoint) Validate(request interface{}) error {
 
 func (r userChangePwdEndpoint) GetPath() string {
 	return "/changepwd"
+}
+
+func (r userChangePwdEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "failed updating password"
+	} else {
+		msg = "password updated successfully"
+	}
+	return msg
 }
 
 func (r userChangePwdEndpoint) HTTPRequest() interface{} {

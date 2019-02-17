@@ -14,9 +14,9 @@ type (
 	}
 
 	userGroupsResponse struct {
-		Request userGroupsRequest         `json:"request,omitempty"`
 		Groups  []engines.GroupWithStatus `json:"groups,omitempty"`
 		Error   *APIError                 `json:"error,omitempty"`
+		Message string                    `json:"message,omitempty"`
 	}
 
 	userGroupsEndpoint struct{}
@@ -31,7 +31,7 @@ func (r userGroupsEndpoint) Execute(ctx context.Context, rtr *router, requestI i
 	}
 
 	groups, err := rtr.engines.GetUserChatGroups(request.UserID)
-	result := userGroupsResponse{Request: request, Error: NewAPIError(err), Groups: groups}
+	result := userGroupsResponse{Error: NewAPIError(err), Groups: groups}
 	return result, err
 }
 
@@ -49,4 +49,15 @@ func (r userGroupsEndpoint) GetPath() string {
 
 func (r userGroupsEndpoint) HTTPRequest() interface{} {
 	return userGroupsRequest{}
+}
+
+func (r userGroupsEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "failed to add user to group!"
+	} else {
+		msg = "user added to group success!"
+	}
+	return msg
 }

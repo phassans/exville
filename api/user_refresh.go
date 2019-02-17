@@ -16,7 +16,8 @@ type (
 
 	refreshResponse struct {
 		refreshRequest
-		Error *APIError `json:"error,omitempty"`
+		Error   *APIError `json:"error,omitempty"`
+		Message string    `json:"message,omitempty"`
 	}
 
 	refreshEndpoint struct{}
@@ -32,7 +33,7 @@ func (r refreshEndpoint) Execute(ctx context.Context, rtr *router, requestI inte
 	}
 
 	err := rtr.engines.Refresh(request.UserID)
-	result := refreshResponse{refreshRequest: request, Error: NewAPIError(err)}
+	result := refreshResponse{refreshRequest: request, Error: NewAPIError(err), Message: r.GetMessage(err)}
 	return result, err
 }
 
@@ -50,4 +51,15 @@ func (r refreshEndpoint) GetPath() string {
 
 func (r refreshEndpoint) HTTPRequest() interface{} {
 	return refreshRequest{}
+}
+
+func (r refreshEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "failed refreshing user!"
+	} else {
+		msg = "user refresh success!"
+	}
+	return msg
 }

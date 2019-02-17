@@ -17,9 +17,9 @@ type (
 	}
 
 	signUpResponse struct {
-		signUpRequest
-		UserId engines.UserID `json:"userId"`
-		Error  *APIError      `json:"error,omitempty"`
+		UserId  engines.UserID `json:"userId"`
+		Error   *APIError      `json:"error,omitempty"`
+		Message string         `json:"message,omitempty"`
 	}
 
 	signUpEndpoint struct{}
@@ -35,7 +35,7 @@ func (r signUpEndpoint) Execute(ctx context.Context, rtr *router, requestI inter
 	}
 
 	user, err := rtr.engines.SignUp(request.UserName, request.Password, request.LinkedInURL)
-	result := signUpResponse{signUpRequest: request, Error: NewAPIError(err), UserId: user.UserID}
+	result := signUpResponse{Error: NewAPIError(err), UserId: user.UserID, Message: r.GetMessage(err)}
 	return result, err
 }
 
@@ -54,4 +54,15 @@ func (r signUpEndpoint) GetPath() string {
 
 func (r signUpEndpoint) HTTPRequest() interface{} {
 	return signUpRequest{}
+}
+
+func (r signUpEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "failed signing up user!"
+	} else {
+		msg = "user signup success!"
+	}
+	return msg
 }

@@ -36,6 +36,7 @@ type (
 		HTTPRequest() interface{}
 		Execute(context.Context, *router, interface{}) (interface{}, error)
 		Validate(interface{}) error
+		GetMessage(error) string
 	}
 )
 

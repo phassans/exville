@@ -478,7 +478,7 @@ func (d *databaseEngine) GetGroupsByUserID(userID UserID) ([]Group, error) {
 
 func (d *databaseEngine) GetGroupsWithStatusByUserID(userID UserID) ([]GroupWithStatus, error) {
 	rows, err := d.sql.Query("SELECT group_name, status FROM user_to_groups "+
-		"WHERE user_id=$1 AND status=$2", userID, true)
+		"WHERE user_id=$1", userID)
 	if err != nil {
 		return nil, common.DatabaseError{DBError: err.Error()}
 	}

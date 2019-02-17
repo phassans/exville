@@ -15,6 +15,7 @@ type (
 
 	userDeleteResponse struct {
 		Request userDeleteRequest `json:"request,omitempty"`
+		Message string            `json:"message,omitempty"`
 		Error   *APIError         `json:"error,omitempty"`
 	}
 
@@ -30,7 +31,7 @@ func (r userDeleteEndpoint) Execute(ctx context.Context, rtr *router, requestI i
 	}
 
 	err := rtr.engines.DeleteUser(request.UserID)
-	result := userDeleteResponse{Request: request, Error: NewAPIError(err)}
+	result := userDeleteResponse{Request: request, Error: NewAPIError(err), Message: r.GetMessage(err)}
 	return result, err
 }
 
@@ -48,4 +49,15 @@ func (r userDeleteEndpoint) GetPath() string {
 
 func (r userDeleteEndpoint) HTTPRequest() interface{} {
 	return userDeleteRequest{}
+}
+
+func (r userDeleteEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "failed to delete user!"
+	} else {
+		msg = "user deleted successfully!"
+	}
+	return msg
 }

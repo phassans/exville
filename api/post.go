@@ -12,13 +12,12 @@ func (rtr *router) newPostHandler(endpoint postEndpoint) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		defer rtr.cleanup(&err, w)
-
 		logger := common.GetLogger()
 
 		request := reflect.New(reflect.TypeOf(endpoint.HTTPRequest()))
 		err = json.NewDecoder(r.Body).Decode(request.Interface())
 		if err != nil {
-			//err = ErrInvalidJSON{Err: err}
+			err = json.NewEncoder(w).Encode(APIError{ErrorMessage: err.Error(), Code: GetErrorStatus(err)})
 			return
 		}
 		r.Body.Close()
@@ -35,10 +34,7 @@ func (rtr *router) newPostHandler(endpoint postEndpoint) http.HandlerFunc {
 		if err == nil {
 			err = engineErr
 		}
-		logger = logger.With().
-			Str("endpoint", endpoint.GetPath()).
-			//Str("query", fmt.Sprintf("%#v", request.Elem().Interface())).
-			Int("status", GetErrorStatus(err)).Logger()
+		logger = logger.With().Str("endpoint", endpoint.GetPath()).Int("status", GetErrorStatus(err)).Logger()
 		if err != nil {
 			logger.Error().Msgf(err.Error())
 			return

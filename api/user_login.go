@@ -16,9 +16,9 @@ type (
 	}
 
 	loginResponse struct {
-		Request loginRequest `json:"request,omitempty"`
 		User    engines.User `json:"user,omitempty"`
 		Error   *APIError    `json:"error,omitempty"`
+		Message string       `json:"message,omitempty"`
 	}
 
 	loginEndpoint struct{}
@@ -33,7 +33,7 @@ func (r loginEndpoint) Execute(ctx context.Context, rtr *router, requestI interf
 	}
 
 	user, err := rtr.engines.Login(request.UserName, request.Password)
-	result := loginResponse{Request: request, Error: NewAPIError(err), User: user}
+	result := loginResponse{Error: NewAPIError(err), User: user, Message: r.GetMessage(err)}
 	return result, err
 }
 
@@ -52,4 +52,15 @@ func (r loginEndpoint) GetPath() string {
 
 func (r loginEndpoint) HTTPRequest() interface{} {
 	return loginRequest{}
+}
+
+func (r loginEndpoint) GetMessage(err error) string {
+	// just add a success message
+	msg := ""
+	if err != nil {
+		msg = "user login failed!"
+	} else {
+		msg = "login success!"
+	}
+	return msg
 }
