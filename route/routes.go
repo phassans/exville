@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/phassans/exville/engines"
-
 	"github.com/NYTimes/gziphandler"
 	"github.com/go-chi/chi"
 	"github.com/phassans/exville/api"
+	"github.com/phassans/exville/engines"
 )
 
 // APIServerHandler returns a Gzip handler

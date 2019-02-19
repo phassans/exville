@@ -46,6 +46,7 @@ type (
 		Username    Username
 		LinkedInURL LinkedInURL
 		FileName    FileName
+		ImageName   ImageName
 	}
 
 	Company struct {
