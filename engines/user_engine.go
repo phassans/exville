@@ -23,7 +23,7 @@ type (
 		Refresh(UserID) error
 		ChangePassword(UserID, Password) error
 		DeleteUser(UserID) error
-		UpdateUserWithImage(UserID, ImageName) error
+		UpdateUserWithImage(UserID, ImageLink) error
 
 		GetUserChatGroups(UserID) ([]GroupWithStatus, error)
 		ToggleUserGroup(UserID, Group, bool) error
@@ -265,6 +265,6 @@ func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID UserID) 
 	return nil
 }
 
-func (u *userEngine) UpdateUserWithImage(userID UserID, imageName ImageName) error {
-	return u.dbEngine.UpdateUserWithImage(userID, imageName)
+func (u *userEngine) UpdateUserWithImage(userID UserID, imageLink ImageLink) error {
+	return u.dbEngine.UpdateUserWithImage(userID, imageLink)
 }

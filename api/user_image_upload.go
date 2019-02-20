@@ -96,7 +96,7 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 			return
 		}
 
-		err = rtr.engines.UpdateUserWithImage(engines.UserID(uid), engines.ImageName(cloudinaryResponse.URL))
+		err = rtr.engines.UpdateUserWithImage(engines.UserID(uid), engines.ImageLink(cloudinaryResponse.URL))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			err = json.NewEncoder(w).Encode(hresp{Error: NewAPIError(err)})

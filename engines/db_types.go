@@ -31,7 +31,7 @@ type (
 
 	FileName string
 
-	ImageName string
+	ImageLink string
 
 	UserID int64
 
@@ -46,7 +46,7 @@ type (
 		Username    Username
 		LinkedInURL LinkedInURL
 		FileName    FileName
-		ImageName   ImageName
+		ImageLink   ImageLink
 	}
 
 	Company struct {
