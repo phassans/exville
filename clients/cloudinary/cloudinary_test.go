@@ -1,6 +1,7 @@
 package cloudinary
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -13,11 +14,11 @@ func TestClient_Upload(t *testing.T) {
 	cloudinaryClient := NewCloudinaryClient(common.GetLogger())
 	//prepare the reader instances to encode
 	values := map[string]io.Reader{
-		"file":          mustOpen("../../upload_images/IMG_9614.JPG"), // lets assume its this file
+		"file":          cloudinaryClient.MustOpen("../../upload_images/IMG_9614.JPG"), // lets assume its this file
 		"upload_preset": strings.NewReader(UPLOAD_PRESET),
-		//"public_id":     strings.NewReader("test"),
-		//"folder":        strings.NewReader("upload_images"),
 	}
-	err := cloudinaryClient.Upload(values)
+	resp, err := cloudinaryClient.Upload(values)
 	require.NoError(t, err)
+	require.NotNil(t, resp.URL)
+	fmt.Println(resp.URL)
 }

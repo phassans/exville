@@ -8,9 +8,16 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
+
+	"github.com/phassans/exville/clients/cloudinary"
 
 	"github.com/phassans/exville/common"
 	"github.com/phassans/exville/engines"
+)
+
+const (
+	IMAGE_FOLDER_PATH = "upload_images/"
 )
 
 type (
@@ -44,6 +51,9 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 			return
 		}
 
+		cloudinaryClient := cloudinary.NewCloudinaryClient(logger)
+		var cloudinaryResponse cloudinary.Response
+
 		for i, _ := range images {
 			//for each fileheader, get a handle to the actual file
 			file, err := images[i].Open()
@@ -53,7 +63,7 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 				return
 			}
 			//create destination file making sure the path is writeable.
-			dst, err := os.Create("upload_images/" + images[i].Filename)
+			dst, err := os.Create(IMAGE_FOLDER_PATH + images[i].Filename)
 			defer dst.Close()
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -62,6 +72,17 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 			}
 			//copy the uploaded file to the destination file
 			if _, err := io.Copy(dst, file); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				err = json.NewEncoder(w).Encode(hresp{Error: NewAPIError(err)})
+				return
+			}
+
+			values := map[string]io.Reader{
+				"file":          cloudinaryClient.MustOpen(IMAGE_FOLDER_PATH + images[i].Filename), // lets assume its this file
+				"upload_preset": strings.NewReader(cloudinary.UPLOAD_PRESET),
+			}
+			cloudinaryResponse, err = cloudinaryClient.Upload(values)
+			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				err = json.NewEncoder(w).Encode(hresp{Error: NewAPIError(err)})
 				return
@@ -75,7 +96,7 @@ func (rtr *router) newImageHandler() http.HandlerFunc {
 			return
 		}
 
-		err = rtr.engines.UpdateUserWithImage(engines.UserID(uid), engines.ImageName("upload_images/"+images[0].Filename))
+		err = rtr.engines.UpdateUserWithImage(engines.UserID(uid), engines.ImageName(cloudinaryResponse.URL))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			err = json.NewEncoder(w).Encode(hresp{Error: NewAPIError(err)})
