@@ -106,7 +106,7 @@ func (d *databaseEngine) UpdateUserWithNameAndReference(firstName FirstName, las
 }
 
 func (d *databaseEngine) UpdateUserWithImage(id UserID, imageLink ImageLink) error {
-	updateUserWithImageSQL := `UPDATE viraagh_user SET image_name = $1 WHERE user_id=$2;`
+	updateUserWithImageSQL := `UPDATE viraagh_user SET image_link = $1 WHERE user_id=$2;`
 	_, err := d.sql.Exec(updateUserWithImageSQL, imageLink, id)
 	if err != nil {
 		return err
@@ -126,8 +126,8 @@ func (d *databaseEngine) UpdateUserPassword(id UserID, password Password) error 
 
 func (d *databaseEngine) GetUserByUserNameAndPassword(userName Username, password Password) (User, error) {
 	var user User
-	rows := d.sql.QueryRow("SELECT user_id, first_name, last_name, username, linkedin_url, filename,image_name FROM viraagh_user WHERE username = $1 AND password = $2", userName, password)
-	err := rows.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.Username, &user.LinkedInURL, &user.FileName, &user.ImageLink)
+	rows := d.sql.QueryRow("SELECT user_id, first_name, last_name, username, linkedin_url, filename FROM viraagh_user WHERE username = $1 AND password = $2", userName, password)
+	err := rows.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.Username, &user.LinkedInURL, &user.FileName)
 
 	if err == sql.ErrNoRows {
 		return User{}, common.UserError{Message: fmt.Sprintf("user doesnt exist")}
