@@ -209,7 +209,7 @@ func (u *userEngine) ToggleUserGroup(userID UserID, group Group, status bool) er
 
 func (u *userEngine) getAndProcessUserProfile(linkedInURL LinkedInURL, userId UserID) (phantom.Profile, []Group, error) {
 	// get userProfile
-	profile, err := u.pClient.GetUserProfile(string(linkedInURL), true)
+	profile, err := u.pClient.GetUserProfile(string(linkedInURL), false)
 	if err != nil {
 		return phantom.Profile{}, nil, err
 	}
