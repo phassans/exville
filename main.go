@@ -7,26 +7,28 @@ import (
 	"os"
 	"time"
 
-	"github.com/phassans/exville/clients/phantom"
-
 	"github.com/joho/godotenv"
-	"github.com/phassans/exville/clients/rocket"
-	"github.com/phassans/exville/common"
-	"github.com/phassans/exville/db"
-	"github.com/phassans/exville/engines"
-	"github.com/phassans/exville/route"
+	"github.com/phassans/frolleague/clients/linkedin"
+	"github.com/phassans/frolleague/clients/phantom"
+	"github.com/phassans/frolleague/clients/rocket"
+	"github.com/phassans/frolleague/common"
+	"github.com/phassans/frolleague/db"
+	"github.com/phassans/frolleague/engines"
+	"github.com/phassans/frolleague/route"
 	"github.com/rs/zerolog"
 )
 
 var (
-	roach         db.Roach
-	logger        zerolog.Logger
-	rocketClient  rocket.Client
-	phantomClient phantom.Client
+	roach          db.Roach
+	logger         zerolog.Logger
+	rocketClient   rocket.Client
+	phantomClient  phantom.Client
+	linkedInClient linkedin.Client
 
-	dbEngine      engines.DatabaseEngine
-	userEngine    engines.UserEngine
-	genericEngine engines.Engine
+	dbEngine       engines.DatabaseEngine
+	userEngine     engines.UserEngine
+	genericEngine  engines.Engine
+	linkedInEngine engines.LinkedInEngine
 
 	dbHost     string
 	dbPort     string
@@ -59,12 +61,13 @@ func main() {
 	// initialize engines
 	dbEngine = engines.NewDatabaseEngine(roach.Db, logger)
 	userEngine, err = engines.NewUserEngine(rocketClient, phantomClient, dbEngine, logger)
+	linkedInEngine = engines.NewLinkedInEngine(linkedInClient)
 	if err != nil {
 		logger = logger.With().Str("error", err.Error()).Logger()
 		logger.Fatal().Msgf("could not initialize userEngine")
 	}
 	logger.Info().Msg("engines initialized")
-	genericEngine = engines.NewGenericEngine(userEngine)
+	genericEngine = engines.NewGenericEngine(userEngine, linkedInEngine)
 
 	// start the server
 	server = http.Server{Addr: net.JoinHostPort("", serverPort), Handler: route.APIServerHandler(genericEngine)}
@@ -109,4 +112,5 @@ func initDependencies() {
 	phantomClient = phantom.NewPhantomClient(phantomURL, logger)
 	logger.Info().Msg("init phantom client")
 
+	linkedInClient = linkedin.NewLinkedInClient(linkedInURL, apiLinkedInURL, logger)
 }

@@ -6,8 +6,8 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/go-chi/chi"
-	"github.com/phassans/exville/api"
-	"github.com/phassans/exville/engines"
+	"github.com/phassans/frolleague/api"
+	"github.com/phassans/frolleague/engines"
 )
 
 // APIServerHandler returns a Gzip handler

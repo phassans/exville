@@ -3,13 +3,13 @@ package phantom
 import (
 	"testing"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 	"github.com/stretchr/testify/require"
 )
 
 const (
 	phantomURL  = "https://phantombuster.com"
-	linkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923"
+	linkedInURL = "https://www.linkedin.com/in/pramod-shashidhara-21568923/"
 )
 
 var (
@@ -33,7 +33,8 @@ func TestClient_CrawlUrl(t *testing.T) {
 func TestClient_GetUserFromResponse(t *testing.T) {
 	newPhantomClient(t)
 	{
-		crawlResponse, err := pClient.CrawlUrl(linkedInURL, true)
+		ifFile := false
+		crawlResponse, err := pClient.CrawlUrl(linkedInURL, ifFile)
 		require.NoError(t, err)
 		user := pClient.GetUserFromResponse(crawlResponse)
 		require.NoError(t, err)

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/phassans/frolleague/clients/linkedin"
+
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 )
 
 // APIError is a HTTP result error.
@@ -50,6 +52,10 @@ func GetErrorStatus(err error) int {
 		return http.StatusBadRequest
 	case common.ValidationError:
 		return http.StatusBadRequest
+	case linkedin.APIPostError:
+		return err.Code
+	case linkedin.APIGetError:
+		return err.Status
 	default:
 		return http.StatusInternalServerError
 	}

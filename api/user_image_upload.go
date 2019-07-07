@@ -10,10 +10,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/phassans/exville/clients/cloudinary"
+	"github.com/phassans/frolleague/clients/cloudinary"
 
-	"github.com/phassans/exville/common"
-	"github.com/phassans/exville/engines"
+	"github.com/phassans/frolleague/common"
+	"github.com/phassans/frolleague/engines"
 )
 
 const (

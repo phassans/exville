@@ -2,7 +2,7 @@ package phantom
 
 const (
 	apiPath       = "api/v1/agent/34811/launch"
-	sessionCookie = "AQEDAQTnvfEF4-rSAAABaLyHVkIAAAFo4JPaQlYAYPmXH2YysBG3s8DnVvXTYJRRGuqDEAJpAJXRGUeH0LMRpSRkfblpLA7PNmm2d4EUqpyWx3JblK4_V4P_MRgcWh7Nj1-tT97C7skbBulrh0ZX1oze"
+	sessionCookie = "AQEDAQTnvfEBUzSWAAABabh-Tu8AAAFrPgSLhVYAyGCswM-1OjPAjAbX4QNag2tPtNSplUEiWWiOBPpUSrFN_3yL4TG0aGMyWWMooBiUyYeCOGxvoG6PNETHmwJLxTFNznPAZiKgxk28ZAiQKjMMn0DW"
 	output        = "result-object-with-output"
 	userDataPath  = "user_data/"
 )

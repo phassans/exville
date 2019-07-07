@@ -3,8 +3,8 @@ package engines
 import (
 	"testing"
 
-	"github.com/phassans/exville/common"
-	"github.com/phassans/exville/db"
+	"github.com/phassans/frolleague/common"
+	"github.com/phassans/frolleague/db"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
 )

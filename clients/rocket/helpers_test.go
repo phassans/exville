@@ -3,7 +3,7 @@ package rocket
 import (
 	"testing"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 )
 
 const (

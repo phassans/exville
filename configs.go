@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 )
 
 var (

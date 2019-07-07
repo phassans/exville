@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 )
 
 func (rtr *router) newPostHandler(endpoint postEndpoint) http.HandlerFunc {

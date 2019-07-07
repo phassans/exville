@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 	"github.com/stretchr/testify/require"
 )
 

@@ -66,3 +66,13 @@ func (l LocationError) Error() string {
 	b, _ := json.Marshal(l)
 	return fmt.Sprintf("location error: %s", string(b))
 }
+
+// LinkedInError ...
+type LinkedInError struct {
+	Message string `json:"message,omitempty"`
+}
+
+func (l LinkedInError) Error() string {
+	b, _ := json.Marshal(l)
+	return fmt.Sprintf("%s", string(b))
+}

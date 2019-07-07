@@ -7,8 +7,8 @@ import (
 
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/go-chi/chi"
-	"github.com/phassans/exville/common"
-	"github.com/phassans/exville/engines"
+	"github.com/phassans/frolleague/common"
+	"github.com/phassans/frolleague/engines"
 	"github.com/rs/cors"
 )
 
@@ -53,6 +53,11 @@ var (
 		refresh,
 		userChangePwd,
 		userDelete,
+
+		// linkedIn
+		linkedInUserAuthCode,
+		linkedInLogIn,
+		linkedInUserURL,
 	}
 )
 

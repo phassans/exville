@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/phassans/exville/clients/phantom"
-	"github.com/phassans/exville/clients/rocket"
+	"github.com/phassans/frolleague/clients/linkedin"
+
+	"github.com/phassans/frolleague/clients/phantom"
+	"github.com/phassans/frolleague/clients/rocket"
 	"github.com/rs/zerolog"
 )
 
@@ -24,6 +26,7 @@ type (
 		ChangePassword(UserID, Password) error
 		DeleteUser(UserID) error
 		UpdateUserWithImage(UserID, ImageLink) error
+		UpdateUserWithLinkedInURL(id linkedin.UserID, url LinkedInURL) error
 
 		GetUserChatGroups(UserID) ([]GroupWithStatus, error)
 		ToggleUserGroup(UserID, Group, bool) error
@@ -267,4 +270,9 @@ func (u *userEngine) addUserToCompanies(profile phantom.Profile, userID UserID) 
 
 func (u *userEngine) UpdateUserWithImage(userID UserID, imageLink ImageLink) error {
 	return u.dbEngine.UpdateUserWithImage(userID, imageLink)
+}
+
+func (u *userEngine) UpdateUserWithLinkedInURL(id linkedin.UserID, url LinkedInURL) error {
+	fmt.Printf("linkedInURL: %s", url)
+	return nil
 }

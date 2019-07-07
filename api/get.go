@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 )
 
 func (rtr *router) newGetHandler(endpoint getEndPoint) http.HandlerFunc {

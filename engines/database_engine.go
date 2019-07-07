@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/phassans/exville/common"
+	"github.com/phassans/frolleague/common"
 	"github.com/rs/zerolog"
 )
 
